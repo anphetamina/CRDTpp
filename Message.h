@@ -1,0 +1,30 @@
+//
+// Created by asant on 05/10/2019.
+//
+
+#ifndef PDS_CPP_MESSAGE_H
+#define PDS_CPP_MESSAGE_H
+
+
+#include "Symbol.h"
+
+class Message {
+private:
+    int type;
+    Symbol s;
+    int siteId;
+    int counter;
+public:
+    Message(int type, const Symbol &s, int siteId, int counter);
+
+    int getType() const;
+
+    const Symbol &getS() const;
+
+    int getSiteId() const;
+
+    int getCounter() const;
+};
+
+
+#endif //PDS_CPP_MESSAGE_H
