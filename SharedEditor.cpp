@@ -124,6 +124,7 @@ void SharedEditor::localInsert(int index, char value) {
     Symbol sym(value, sym_id, sym_position);
     _symbols.insert(_symbols.begin() + index, sym);
     _counter++;
+    // todo fix reply messages
     Message m(INSERT, sym, _siteId);
     _server.send(m);
 }
@@ -142,22 +143,28 @@ void SharedEditor::process(const Message &m) {
     int index = 0;
     switch (m.getType()) {
         case INSERT:
-            while (it != _symbols.end()) {
-                if (*it < symbol && symbol < *(it+1)) {
-                    localInsert(index, symbol.getC());
+            if (_symbols.empty()) {
+                localInsert(index, symbol.getC());
+            } else {
+                while (it != _symbols.end()) {
+                    if (*it < symbol && symbol < *(it+1)) {
+                        localInsert(index, symbol.getC());
+                    }
+                    it++;
+                    index++;
                 }
-                it++;
-                index++;
             }
             break;
 
         case DELETE:
-            while (it != _symbols.end()) {
-                if (*it == symbol) {
-                    localErase(index);
+            if (!_symbols.empty()) {
+                while (it != _symbols.end()) {
+                    if (*it == symbol) {
+                        localErase(index);
+                    }
+                    it++;
+                    index++;
                 }
-                it++;
-                index++;
             }
             break;
 
