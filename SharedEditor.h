@@ -6,6 +6,7 @@
 #define PDS_CPP_SHAREDEDITOR_H
 
 #include <vector>
+#include <map>
 #include "Symbol.h"
 #include "Message.h"
 
@@ -17,6 +18,9 @@ private:
     int _siteId;
     std::vector<Symbol> _symbols;
     int _counter;
+    std::map<int, bool> strategies;
+    int base;
+    int boundary;
 
 public:
     SharedEditor(NetworkServer &server);
@@ -29,6 +33,11 @@ public:
 
     int getCounter() const;
 
+    int generateIdBetween(int n1, int n2, bool strategy) const;
+    std::vector<int> generatePosBetween(std::vector<int> pos1, std::vector<int> pos2, std::vector<int> newPos, int level);
+    bool retrieveStrategy(int level);
+    std::vector<int> findPosBefore(int index);
+    std::vector<int> findPosAfter(int index);
     void localInsert(int index, char value);
     void localErase(int index);
     void process(const Message& m);

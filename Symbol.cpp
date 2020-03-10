@@ -4,7 +4,7 @@
 
 #include "Symbol.h"
 
-Symbol::Symbol(char c, const std::string &id, const std::vector<int> &position) : c(c), id(id), position(position) {}
+Symbol::Symbol(char c, const std::string id, const std::vector<int> position) : c(c), id(id), position(position) {}
 
 char Symbol::getC() const {
     return c;
@@ -28,4 +28,41 @@ const std::vector<int> &Symbol::getPosition() const {
 
 void Symbol::setPosition(const std::vector<int> &position) {
     Symbol::position = position;
+}
+
+bool Symbol::operator==(const Symbol &symbol) const {
+    const std::vector<int>& pos = symbol.getPosition();
+    return this->position == pos;
+}
+
+bool Symbol::operator>(const Symbol &symbol) const {
+    if (this->position.size() < symbol.getPosition().size()) {
+        return false;
+    } else if (this->position.size() > symbol.getPosition().size()) {
+        return true;
+    } else {
+        auto it2 = symbol.getPosition().begin();
+        for (auto it1 = this->position.begin(); it1 != this->position.end(); it1++) {
+            if (*it1 > *it2++) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
+bool Symbol::operator<(const Symbol &symbol) const {
+    if (this->position.size() < symbol.getPosition().size()) {
+        return true;
+    } else if (this->position.size() > symbol.getPosition().size()) {
+        return false;
+    } else {
+        auto it2 = symbol.getPosition().begin();
+        for (auto it1 = this->position.begin(); it1 != this->position.end(); it1++) {
+            if (*it1 < *it2++) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

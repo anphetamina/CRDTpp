@@ -13,9 +13,8 @@ private:
     int type;
     Symbol s;
     int siteId;
-    int counter;
 public:
-    Message(int type, const Symbol &s, int siteId, int counter);
+    Message(int type, const Symbol s, int siteId);
 
     int getType() const;
 
