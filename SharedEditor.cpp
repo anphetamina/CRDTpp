@@ -114,6 +114,7 @@ std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::ve
 
 void SharedEditor::localInsert(int index, char value) {
     std::string sym_id = std::to_string(_siteId);
+    sym_id.append("_");
     sym_id.append(std::to_string(_counter));
     std::vector<int> sym_position;
 
@@ -124,7 +125,6 @@ void SharedEditor::localInsert(int index, char value) {
     Symbol sym(value, sym_id, sym_position);
     _symbols.insert(_symbols.begin() + index, sym);
     _counter++;
-    // todo fix reply messages
     Message m(INSERT, sym, _siteId);
     _server.send(m);
 }
