@@ -132,8 +132,18 @@ void SharedEditor::localInsert(int index, char value) {
 void SharedEditor::localErase(int index) {
     if (_symbols.empty()) {
         return;
+    } else if (index > _counter) {
+        Symbol sym = _symbols.back();
+        _symbols.pop_back();
+        _counter--;
+        Message m(DELETE, sym, _siteId);
+        _server.send(m);
     } else {
+        Symbol sym = _symbols.at(index);
         _symbols.erase(_symbols.begin() + index);
+        _counter--;
+        Message m(DELETE, sym, _siteId);
+        _server.send(m);
     }
 }
 
@@ -144,23 +154,30 @@ void SharedEditor::process(const Message &m) {
     switch (m.getType()) {
         case INSERT:
             if (_symbols.empty()) {
-                localInsert(index, symbol.getC());
+                _symbols.insert(_symbols.begin(), symbol);
             } else {
                 while (it != _symbols.end()) {
-                    if (*it < symbol && symbol < *(it+1)) {
-                        localInsert(index, symbol.getC());
+                    if (symbol < *it) {
+                        _symbols.insert(_symbols.begin() + index, symbol);
+                        break;
                     }
                     it++;
                     index++;
                 }
+                if (it == _symbols.end()) {
+                    _symbols.push_back(symbol);
+                }
             }
+            _counter++;
             break;
 
         case DELETE:
             if (!_symbols.empty()) {
                 while (it != _symbols.end()) {
                     if (*it == symbol) {
-                        localErase(index);
+                        _symbols.erase(_symbols.begin() + index);
+                        _counter--;
+                        break;
                     }
                     it++;
                     index++;
