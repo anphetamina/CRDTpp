@@ -31,8 +31,8 @@ void Symbol::setPosition(const std::vector<int> &position) {
 }
 
 bool Symbol::operator==(const Symbol &symbol) const {
-    const std::vector<int>& pos = symbol.getPosition();
-    return this->position == pos;
+    const std::string &id = symbol.getId();
+    return this->id == id;
 }
 
 bool Symbol::operator>(const Symbol &symbol) const {
