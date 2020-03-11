@@ -106,10 +106,10 @@ std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::ve
         int newId = generateIdBetween(id1, id2, boundaryStrategy);
         newPos.push_back(newId);
         return newPos;
-    } else if ((id2 - id1) == 1) {
+    } else if ((id2 - id1) == 1 || id1 == id2) {
         newPos.push_back(id1);
         return this->generatePosBetween(pos1, pos2, newPos, level+1);
-    } // todo else if id1==id2?
+    }
 }
 
 void SharedEditor::localInsert(int index, char value) {
@@ -148,7 +148,7 @@ void SharedEditor::localErase(int index) {
 }
 
 void SharedEditor::process(const Message &m) {
-    const Symbol& symbol = m.getS();
+    Symbol symbol = m.getS();
     auto it = _symbols.begin();
     int index = 0;
     switch (m.getType()) {
@@ -160,6 +160,11 @@ void SharedEditor::process(const Message &m) {
                     if (symbol < *it) {
                         _symbols.insert(_symbols.begin() + index, symbol);
                         break;
+                    } else if (symbol.getPosition() == it->getPosition()) {
+                        std::vector<int> sym_position;
+                        sym_position = generatePosBetween(symbol.getPosition(), it->getPosition(), sym_position, 0);
+                        symbol.setPosition(sym_position);
+                        _symbols.insert(_symbols.begin() + index, symbol);
                     }
                     it++;
                     index++;
