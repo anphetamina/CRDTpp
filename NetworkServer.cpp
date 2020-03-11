@@ -22,11 +22,12 @@ void NetworkServer::send(const Message &m) {
 }
 
 void NetworkServer::dispatchMessages() {
-    std::for_each(editors.begin(), editors.end(), [&](SharedEditor* it){
-        std::for_each(messages.begin(), messages.end(), [&](Message m){
-            if (m.getSiteId() != it->getSiteId()) {
-                it->process(m);
+    for (auto m = messages.begin(); m != messages.end(); m++) {
+        for (auto e : editors) {
+            if (e->getSiteId() != m->getSiteId()) {
+                e->process(*m);
             }
-        });
-    });
+        }
+    }
+    messages.clear();
 }
