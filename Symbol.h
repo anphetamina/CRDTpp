@@ -30,7 +30,6 @@ public:
     void setPosition(const std::vector<int> &position);
 
     bool operator==(const Symbol &symbol) const;
-    bool operator>(const Symbol &symbol) const;
     bool operator<(const Symbol &symbol) const;
 };
 
