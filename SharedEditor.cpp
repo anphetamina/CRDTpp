@@ -31,7 +31,7 @@ int SharedEditor::getCounter() const {
 }
 
 bool SharedEditor::retrieveStrategy(int level) {
-    if (strategies.size() <= level && level != 0) {
+    if (strategies.size() < level && level != 0) {
         return strategies.at(level);
     }
     bool strategy;
@@ -68,12 +68,15 @@ std::vector<int> SharedEditor::findPosBefore(int index) {
     std::vector<int> pos;
     if (_symbols.empty()) {
         pos = {0};
-    } else if (index < _counter && _counter == 1) {
-        pos = {0};
     } else {
-        pos = _symbols.at(index - 1).getPosition();
+        if (index == 0) {
+            pos = {0};
+        } else if (index > _counter) {
+            pos = _symbols.back().getPosition();
+        } else {
+            pos = _symbols.at(index - 1).getPosition();
+        }
     }
-
     return pos;
 }
 
@@ -81,10 +84,12 @@ std::vector<int> SharedEditor::findPosAfter(int index) {
     std::vector<int> pos;
     if (_symbols.empty()) {
         pos = {this->base};
-    } else if (index >= _counter) {
-        pos = {this->base};
     } else {
-        pos = _symbols.at(index).getPosition();
+        if (index >= _counter) {
+            pos = {this->base};
+        } else {
+            pos = _symbols.at(index).getPosition();
+        }
     }
 
     return pos;
@@ -93,10 +98,10 @@ std::vector<int> SharedEditor::findPosAfter(int index) {
 std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::vector<int> pos2, std::vector<int> newPos, int level) {
     int id1 = 0;
     int id2 = static_cast<int>(std::pow(2, level)*base);
-    if (pos1.size() >= level) {
+    if (pos1.size() > level) {
         id1 = pos1.at(level);
     }
-    if (pos2.size() >= level) {
+    if (pos2.size() > level) {
         id2 = pos2.at(level);
     }
 
@@ -123,7 +128,11 @@ void SharedEditor::localInsert(int index, char value) {
     sym_position = generatePosBetween(pos1, pos2, sym_position, 0);
 
     Symbol sym(value, sym_id, sym_position);
-    _symbols.insert(_symbols.begin() + index, sym);
+    if (index >= _counter) {
+        _symbols.push_back(sym);
+    } else {
+        _symbols.insert(_symbols.begin() + index, sym);
+    }
     _counter++;
     Message m(INSERT, sym, _siteId);
     _server.send(m);

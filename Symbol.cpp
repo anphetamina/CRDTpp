@@ -34,34 +34,19 @@ bool Symbol::operator==(const Symbol &symbol) const {
     return this->id == symbol.getId();
 }
 
-bool Symbol::operator>(const Symbol &symbol) const {
-    if (this->position.size() < symbol.getPosition().size()) {
-        return false;
-    } else if (this->position.size() > symbol.getPosition().size()) {
-        return true;
-    } else {
-        auto it2 = symbol.getPosition().begin();
-        for (auto it1 = this->position.begin(); it1 != this->position.end(); it1++) {
-            if (*it1 > *it2++) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-
 bool Symbol::operator<(const Symbol &symbol) const {
+    int min = 0;
     if (this->position.size() < symbol.getPosition().size()) {
-        return true;
-    } else if (this->position.size() > symbol.getPosition().size()) {
-        return false;
+        min = this->getPosition().size();
     } else {
-        auto it2 = symbol.getPosition().begin();
-        for (auto it1 = this->position.begin(); it1 != this->position.end(); it1++) {
-            if (*it1 < *it2++) {
-                return true;
-            }
-        }
-        return false;
+        min = symbol.getPosition().size();
     }
+    for (int i = 0; i < min; i++) {
+        if (this->position[i] < symbol.getPosition()[i]) {
+            return true;
+        } else if (this->position[i] > symbol.getPosition()[i]) {
+            return false;
+        }
+    }
+    return this->position.size() < symbol.getPosition().size();
 }
