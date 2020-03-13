@@ -22,7 +22,7 @@ int SharedEditor::getSiteId() const {
     return _siteId;
 }
 
-const std::vector<Symbol> &SharedEditor::getSymbols() const {
+std::vector<Symbol> & SharedEditor::getSymbols() {
     return _symbols;
 }
 
@@ -210,4 +210,8 @@ std::string SharedEditor::to_string() {
         string += s.getC();
     });
     return string;
+}
+
+void SharedEditor::setServer(NetworkServer &server) {
+    _server = server;
 }

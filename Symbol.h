@@ -15,7 +15,7 @@ private:
     std::string id;
     std::vector<int> position;
 public:
-    Symbol(char c, const std::string id, const std::vector<int> position);
+    Symbol(char c, std::string id, std::vector<int> position);
 
     char getC() const;
 

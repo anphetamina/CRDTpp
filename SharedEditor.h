@@ -23,13 +23,16 @@ private:
     int boundary;
 
 public:
+
     SharedEditor(NetworkServer &server);
 
     NetworkServer &getServer() const;
 
+    void setServer(NetworkServer &server);
+
     int getSiteId() const;
 
-    const std::vector<Symbol> &getSymbols() const;
+    std::vector<Symbol> &getSymbols();
 
     int getCounter() const;
 
