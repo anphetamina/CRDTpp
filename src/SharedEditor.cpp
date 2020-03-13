@@ -183,7 +183,17 @@ std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::ve
     }
 }
 
+/**
+ *
+ * @param index
+ * @param value
+ * insert value at index in symbols
+ */
 void SharedEditor::localInsert(int index, char value) {
+    if (index < 0) {
+        throw std::invalid_argument("index is negative");
+    }
+
     std::string sym_id = std::to_string(_siteId);
     sym_id.append("_");
     sym_id.append(std::to_string(_counter));

@@ -13,13 +13,13 @@ protected:
 
         ed1 = new SharedEditor(server);
 
-        ed1->getSymbols().push_back(Symbol(char('a'), std::string{"0_1"}, std::vector<int>{1}));
-        ed1->getSymbols().push_back(Symbol(char('n'), std::string{"0_2"}, std::vector<int>{2}));
-        ed1->getSymbols().push_back(Symbol(char('t'), std::string{"0_3"}, std::vector<int>{3}));
-        ed1->getSymbols().push_back(Symbol(char('o'), std::string{"0_4"}, std::vector<int>{4}));
-        ed1->getSymbols().push_back(Symbol(char('n'), std::string{"0_5"}, std::vector<int>{5}));
-        ed1->getSymbols().push_back(Symbol(char('i'), std::string{"0_6"}, std::vector<int>{6}));
-        ed1->getSymbols().push_back(Symbol(char('o'), std::string{"0_7"}, std::vector<int>{7}));
+        ed1->getSymbols().push_back(Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}));
+        ed1->getSymbols().push_back(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}));
+        ed1->getSymbols().push_back(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}));
+        ed1->getSymbols().push_back(Symbol(char('o'), std::string{"0_3"}, std::vector<int>{4}));
+        ed1->getSymbols().push_back(Symbol(char('n'), std::string{"0_4"}, std::vector<int>{5}));
+        ed1->getSymbols().push_back(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}));
+        ed1->getSymbols().push_back(Symbol(char('o'), std::string{"0_6"}, std::vector<int>{7}));
         ed1->setCounter(7);
     }
 
@@ -74,6 +74,31 @@ TEST_F(SharedEditorTest, generatePosBetween) {
 
     ASSERT_THROW(ed1->generatePosBetween({}, {2}, {}, 0), std::invalid_argument);
     ASSERT_THROW(ed1->generatePosBetween({1}, {2}, {}, -1), std::invalid_argument);
+}
+
+TEST_F(SharedEditorTest, localInsert) {
+    std::vector<Symbol> s;
+    s.push_back(Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}));
+    s.push_back(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}));
+    s.push_back(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}));
+    s.push_back(Symbol(char('o'), std::string{"0_3"}, std::vector<int>{4}));
+    s.push_back(Symbol(char('n'), std::string{"0_4"}, std::vector<int>{5}));
+    s.push_back(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}));
+    s.push_back(Symbol(char('o'), std::string{"0_6"}, std::vector<int>{7}));
+
+    ed1->getSymbols().clear();
+    ed1->setCounter(0);
+
+    ed1->localInsert(0, 'a');
+    ed1->localInsert(1, 'n');
+    ed1->localInsert(2, 't');
+    ed1->localInsert(3, 'o');
+    ed1->localInsert(4, 'n');
+    ed1->localInsert(5, 'i');
+    ed1->localInsert(60, 'o');
+
+    ASSERT_EQ(s, ed1->getSymbols());
+    ASSERT_THROW(ed1->localInsert(-1, 'z'), std::invalid_argument);
 }
 
 int main(int argc, char **argv) {
