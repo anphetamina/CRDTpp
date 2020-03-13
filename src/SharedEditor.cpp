@@ -4,8 +4,11 @@
 
 #define INSERT 1
 #define DELETE -1
+
+#include <exception>
 #include <algorithm>
 #include <random>
+#include <iostream>
 #include "SharedEditor.h"
 #include "NetworkServer.h"
 
@@ -44,7 +47,31 @@ bool SharedEditor::retrieveStrategy(int level) {
     return strategy;
 }
 
+/**
+ *
+ * @param min
+ * @param max
+ * @param strategy
+ * @return random number in ]min, max[
+ */
 int SharedEditor::generateIdBetween(int min, int max, bool strategy) const {
+
+    if (min < 0 && max < 0) {
+        throw std::invalid_argument("min and max is negative");
+    }
+    if (min < 0) {
+        throw std::invalid_argument("min is negative");
+    }
+    if (max < 0) {
+        throw std::invalid_argument("max is negative");
+    }
+    if (max < min) {
+        throw std::range_error("min is greater than max");
+    }
+    if (min == max) {
+        throw std::range_error("min is equal to max");
+    }
+
     std::random_device random_device;
     std::mt19937 generator(random_device());
 
@@ -64,7 +91,15 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) const {
     return distribution(generator);
 }
 
+/**
+ *
+ * @param index
+ * @return the pos of the next previous symbol from index
+ */
 std::vector<int> SharedEditor::findPosBefore(int index) {
+    if (index < 0) {
+        throw std::invalid_argument("index is negative");
+    }
     std::vector<int> pos;
     if (_symbols.empty()) {
         pos = {0};
@@ -95,25 +130,56 @@ std::vector<int> SharedEditor::findPosAfter(int index) {
     return pos;
 }
 
+/**
+ *
+ * @param pos1
+ * @param pos2
+ * @param newPos
+ * @param level
+ * @return fractional pos between pos1 and pos2
+ */
 std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::vector<int> pos2, std::vector<int> newPos, int level) {
+    if (pos1.empty()) {
+        throw std::invalid_argument("pos1 is empty");
+    }
+    if (level < 0) {
+        throw std::invalid_argument("level is negative");
+    }
+
     int id1 = 0;
     int id2 = static_cast<int>(std::pow(2, level)*base);
     if (pos1.size() > level) {
         id1 = pos1.at(level);
     }
-    if (pos2.size() > level) {
+    if (!pos2.empty() && pos2.size() > level) {
         id2 = pos2.at(level);
     }
 
     bool boundaryStrategy = retrieveStrategy(level);
 
     if ((id2 - id1) > 1) {
-        int newId = generateIdBetween(id1, id2, boundaryStrategy);
+        int newId = 0;
+        try {
+            newId = generateIdBetween(id1, id2, boundaryStrategy);
+        } catch (std::exception& e) {
+            throw;
+        }
         newPos.push_back(newId);
         return newPos;
-    } else if ((id2 - id1) == 1 || id1 == id2) {
+    } else if ((id2 - id1) == 1) {
         newPos.push_back(id1);
-        return this->generatePosBetween(pos1, pos2, newPos, level+1);
+        try {
+            return this->generatePosBetween(pos1, {}, newPos, level+1);
+        } catch(...) {
+            throw;
+        }
+    } else if (id1 == id2) {
+        newPos.push_back(id1);
+        try {
+            return this->generatePosBetween(pos1, pos2, newPos, level+1);
+        } catch(...) {
+            throw;
+        }
     }
 }
 
@@ -125,7 +191,12 @@ void SharedEditor::localInsert(int index, char value) {
 
     std::vector<int> pos1 = findPosBefore(index);
     std::vector<int> pos2 = findPosAfter(index);
-    sym_position = generatePosBetween(pos1, pos2, sym_position, 0);
+    try {
+        sym_position = generatePosBetween(pos1, pos2, sym_position, 0);
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl << "localInsert failed" << std::endl;
+        return;
+    }
 
     Symbol sym(value, sym_id, sym_position);
     if (index >= _counter) {
@@ -214,4 +285,12 @@ std::string SharedEditor::to_string() {
 
 void SharedEditor::setServer(NetworkServer &server) {
     _server = server;
+}
+
+int SharedEditor::getBase() const {
+    return base;
+}
+
+void SharedEditor::setCounter(int counter) {
+    _counter = counter;
 }

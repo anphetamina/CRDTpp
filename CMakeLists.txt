@@ -3,5 +3,11 @@ project(CRDTpp)
 
 set(CMAKE_CXX_STANDARD 17)
 
+file(GLOB SOURCE_FILES
+        "src/*.h"
+        "src/*.cpp"
+        )
+
+add_executable(CRDTpp main.cpp ${SOURCE_FILES})
+
 add_subdirectory(Google_tests)
-add_executable(CRDTpp "main.cpp" "Symbol.cpp" "Symbol.h" "NetworkServer.cpp" "NetworkServer.h" "SharedEditor.cpp" "SharedEditor.h" "Message.cpp" "Message.h")

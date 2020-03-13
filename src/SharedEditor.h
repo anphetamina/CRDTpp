@@ -23,6 +23,7 @@ private:
     int boundary;
 
 public:
+    void setCounter(int counter);
 
     SharedEditor(NetworkServer &server);
 
@@ -35,6 +36,8 @@ public:
     std::vector<Symbol> &getSymbols();
 
     int getCounter() const;
+
+    int getBase() const;
 
     int generateIdBetween(int n1, int n2, bool strategy) const;
     std::vector<int> generatePosBetween(std::vector<int> pos1, std::vector<int> pos2, std::vector<int> newPos, int level);
