@@ -7,7 +7,7 @@
 
 static int id = 0;
 
-int NetworkServer::connect(SharedEditor *sharedEditor) {
+int NetworkServer::connect(SharedEditor* sharedEditor) {
     editors.push_back(sharedEditor);
     return id++;
 }

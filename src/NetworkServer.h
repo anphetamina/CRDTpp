@@ -6,6 +6,7 @@
 #define PDS_CPP_NETWORKSERVER_H
 
 #include <queue>
+#include <memory>
 #include "SharedEditor.h"
 #include "Message.h"
 

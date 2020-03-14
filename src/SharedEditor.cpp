@@ -20,7 +20,7 @@ SharedEditor::SharedEditor(NetworkServer &server)
     _siteId = server.connect(this);
 }
 
-NetworkServer &SharedEditor::getServer() const {
+NetworkServer& SharedEditor::getServer() const {
     return _server;
 }
 
@@ -28,7 +28,7 @@ int SharedEditor::getSiteId() const {
     return _siteId;
 }
 
-std::vector<Symbol> & SharedEditor::getSymbols() {
+std::vector<Symbol>& SharedEditor::getSymbols() {
     return _symbols;
 }
 

@@ -5,9 +5,6 @@
 #include <iostream>
 #include "src/NetworkServer.h"
 
-// todo shared ptr
-// todo counter_id
-
 int main() {
     NetworkServer network;
     SharedEditor ed1(network);
