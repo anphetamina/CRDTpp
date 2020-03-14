@@ -34,6 +34,9 @@ int SharedEditor::getCounter() const {
 }
 
 bool SharedEditor::retrieveStrategy(int level) {
+    if (level < 0) {
+        throw std::invalid_argument("level is negative");
+    }
     if (strategies.size() < level && level != 0) {
         return strategies.at(level);
     }
@@ -115,7 +118,15 @@ std::vector<int> SharedEditor::findPosBefore(int index) {
     return pos;
 }
 
+/**
+ *
+ * @param index
+ * @return the pos of the next following symbol from index
+ */
 std::vector<int> SharedEditor::findPosAfter(int index) {
+    if (index < 0) {
+        throw std::invalid_argument("index is negative");
+    }
     std::vector<int> pos;
     if (_symbols.empty()) {
         pos = {this->base};
@@ -219,24 +230,39 @@ void SharedEditor::localInsert(int index, char value) {
     _server.send(m);
 }
 
+/**
+ *
+ * @param index
+ * remove a symbol from index
+ */
 void SharedEditor::localErase(int index) {
+    if (index < 0) {
+        throw std::invalid_argument("localErase: index is negative");
+    }
     if (_symbols.empty()) {
         return;
-    } else if (index > _counter) {
-        Symbol sym = _symbols.back();
-        _symbols.pop_back();
-        _counter--;
-        Message m(DELETE, sym, _siteId);
-        _server.send(m);
     } else {
-        Symbol sym = _symbols.at(index);
-        _symbols.erase(_symbols.begin() + index);
+        Symbol* sym;
+        if (index > _counter) {
+            sym = &_symbols.back();
+            _symbols.pop_back();
+        } else {
+            sym = &_symbols.at(index);
+            _symbols.erase(_symbols.begin() + index);
+        }
         _counter--;
-        Message m(DELETE, sym, _siteId);
+        Message m(DELETE, *sym, _siteId);
         _server.send(m);
     }
+
 }
 
+/**
+ *
+ * @param m
+ * if m.type = 1 insert the symbol respecting the fractional position
+ * if m.type = -1 remove the symbol given the fractional position
+ */
 void SharedEditor::process(const Message &m) {
     Symbol symbol = m.getS();
     auto it = _symbols.begin();
@@ -246,21 +272,23 @@ void SharedEditor::process(const Message &m) {
             if (_symbols.empty()) {
                 _symbols.insert(_symbols.begin(), symbol);
             } else {
-                while (it != _symbols.end()) {
-                    if (symbol < *it) {
-                        _symbols.insert(_symbols.begin() + index, symbol);
-                        break;
-                    } else if (symbol.getPosition() == it->getPosition()) {
-                        std::vector<int> sym_position;
-                        sym_position = generatePosBetween(symbol.getPosition(), it->getPosition(), sym_position, 0);
-                        symbol.setPosition(sym_position);
-                        _symbols.insert(_symbols.begin() + index, symbol);
-                    }
-                    it++;
-                    index++;
-                }
-                if (it == _symbols.end()) {
+                if (_symbols.back() < symbol) {
                     _symbols.push_back(symbol);
+                } else {
+                    while (it != _symbols.end()) {
+                        if (symbol < *it) {
+                            _symbols.insert(_symbols.begin() + index, symbol);
+                            break;
+                        } else if (symbol.getPosition() == it->getPosition()) {
+                            std::vector<int> sym_position;
+                            sym_position = generatePosBetween(symbol.getPosition(), it->getPosition(), sym_position, 0);
+                            symbol.setPosition(sym_position);
+                            _symbols.insert(_symbols.begin() + (index+1), symbol);
+                            break;
+                        }
+                        it++;
+                        index++;
+                    }
                 }
             }
             _counter++;

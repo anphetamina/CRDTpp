@@ -31,6 +31,7 @@ public:
 
     bool operator==(const Symbol &symbol) const;
     bool operator<(const Symbol &symbol) const;
+    bool operator>(const Symbol &symbol) const;
 };
 
 

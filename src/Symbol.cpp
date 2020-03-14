@@ -50,3 +50,20 @@ bool Symbol::operator<(const Symbol &symbol) const {
     }
     return this->position.size() < symbol.getPosition().size();
 }
+
+bool Symbol::operator>(const Symbol &symbol) const {
+    int min = 0;
+    if (this->position.size() < symbol.getPosition().size()) {
+        min = this->getPosition().size();
+    } else {
+        min = symbol.getPosition().size();
+    }
+    for (int i = 0; i < min; i++) {
+        if (this->position[i] < symbol.getPosition()[i]) {
+            return false;
+        } else if (this->position[i] > symbol.getPosition()[i]) {
+            return true;
+        }
+    }
+    return this->position.size() > symbol.getPosition().size();
+}

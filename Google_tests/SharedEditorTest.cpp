@@ -65,6 +65,22 @@ TEST_F(SharedEditorTest, findPosBefore) {
     ASSERT_THROW(ed1->findPosBefore(-1), std::invalid_argument);
 }
 
+TEST_F(SharedEditorTest, findPosAfter) {
+    ASSERT_EQ(std::vector<int>{6}, ed1->findPosAfter(5));
+    ASSERT_EQ(std::vector<int>{ed1->getBase()}, ed1->findPosAfter(100));
+
+    ed1->getSymbols().insert(ed1->getSymbols().begin() + 2, Symbol(char('z'), std::string{"0_8"}, std::vector<int>{2, 5}));
+    ed1->getSymbols().insert(ed1->getSymbols().begin() + 2, Symbol(char('y'), std::string{"0_9"}, std::vector<int>{2, 2}));
+    ed1->getSymbols().insert(ed1->getSymbols().begin() + 3, Symbol(char('x'), std::string{"0_10"}, std::vector<int>{2, 2, 10}));
+    ed1->setCounter(ed1->getCounter() + 3);
+
+    ASSERT_EQ((std::vector<int>{3}), ed1->findPosAfter(5));
+    ASSERT_EQ((std::vector<int>{2, 2, 10}), ed1->findPosAfter(3));
+    ASSERT_EQ((std::vector<int>{2, 5}), ed1->findPosAfter(4));
+
+    ASSERT_THROW(ed1->findPosAfter(-1), std::invalid_argument);
+}
+
 TEST_F(SharedEditorTest, generatePosBetween) {
     ASSERT_EQ(std::vector<int>{1}, ed1->generatePosBetween({0}, {2}, {}, 0));
     ASSERT_GT(ed1->generatePosBetween({0, 5}, {1, 7}, {}, 0)[1], 5);
@@ -99,6 +115,73 @@ TEST_F(SharedEditorTest, localInsert) {
 
     ASSERT_EQ(s, ed1->getSymbols());
     ASSERT_THROW(ed1->localInsert(-1, 'z'), std::invalid_argument);
+}
+
+TEST_F(SharedEditorTest, localErase) {
+    std::vector<Symbol> s;
+    s.push_back(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}));
+    s.push_back(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}));
+    s.push_back(Symbol(char('n'), std::string{"0_4"}, std::vector<int>{5}));
+    s.push_back(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}));
+
+    ed1->localErase(3);
+    ed1->localErase(0);
+    ed1->localErase(60);
+
+    ASSERT_EQ(s, ed1->getSymbols());
+    ASSERT_THROW(ed1->localErase(-1), std::invalid_argument);
+}
+
+TEST_F(SharedEditorTest, process) {
+    std::vector<Symbol> s;
+    s.push_back(Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}));
+    s.push_back(Symbol(char('k'), std::string{"1_88"}, std::vector<int>{0, 2, 4}));
+    s.push_back(Symbol(char('z'), std::string{"1_0"}, std::vector<int>{0, 5}));
+    s.push_back(Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}));
+    s.push_back(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}));
+    s.push_back(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}));
+    s.push_back(Symbol(char('o'), std::string{"0_3"}, std::vector<int>{4}));
+    s.push_back(Symbol(char('w'), std::string{"1_20"}, std::vector<int>{4, 20}));
+    s.push_back(Symbol(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2}));
+    s.push_back(Symbol(char('n'), std::string{"0_4"}, std::vector<int>{5}));
+    s.push_back(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}));
+    s.push_back(Symbol(char('o'), std::string{"0_6"}, std::vector<int>{7}));
+    s.push_back(Symbol(char('y'), std::string{"1_2"}, std::vector<int>{7, 6, 6}));
+    s.push_back(Symbol(char('y'), std::string{"1_44"}, std::vector<int>{7, 6, 6, 9}));
+    s.push_back(Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}));
+
+
+    Message m1(1, Symbol(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2}), 1);
+    Message m2(1, Symbol(char('z'), std::string{"1_0"}, std::vector<int>{0, 5}), 1);
+    Message m3(1, Symbol(char('y'), std::string{"1_2"}, std::vector<int>{7, 6, 6}), 1);
+    Message m4(1, Symbol(char('w'), std::string{"1_20"}, std::vector<int>{4, 20}), 1);
+    Message m5(1, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1);
+    Message m6(1, Symbol(char('k'), std::string{"1_88"}, std::vector<int>{0, 2, 4}), 1);
+    Message m7(1, Symbol(char('y'), std::string{"1_44"}, std::vector<int>{7, 6, 6, 9}), 1);
+    Message m8(1, Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}), 1);
+
+    ed1->process(m1);
+    ed1->process(m2);
+    ed1->process(m3);
+    ed1->process(m4);
+    ed1->process(m5);
+    ed1->process(m6);
+    ed1->process(m7);
+    ed1->process(m8);
+
+    ASSERT_EQ(s, ed1->getSymbols());
+
+    Symbol s9(char('d'), std::string{"2_58"}, std::vector<int>{7, 6, 8});
+    Message m9(1, s9, 2);
+    ed1->process(m9);
+    ASSERT_EQ(ed1->getSymbols().back().getId(), "2_58");
+    ASSERT_EQ(ed1->getSymbols().back().getC(), 'd');
+
+    Symbol s10(char('j'), std::string{"2_1"}, std::vector<int>{3});
+    Message m10(1, s10, 2);
+    ed1->process(m10);
+    ASSERT_EQ(ed1->getSymbols()[6].getId(), "2_1");
+    ASSERT_EQ(ed1->getSymbols()[6].getC(), 'j');
 }
 
 int main(int argc, char **argv) {
