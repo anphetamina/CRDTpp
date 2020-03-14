@@ -132,7 +132,7 @@ TEST_F(SharedEditorTest, localErase) {
     ASSERT_THROW(ed1->localErase(-1), std::invalid_argument);
 }
 
-TEST_F(SharedEditorTest, process) {
+TEST_F(SharedEditorTest, processInsert) {
     std::vector<Symbol> s;
     s.push_back(Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}));
     s.push_back(Symbol(char('k'), std::string{"1_88"}, std::vector<int>{0, 2, 4}));
@@ -182,6 +182,43 @@ TEST_F(SharedEditorTest, process) {
     ed1->process(m10);
     ASSERT_EQ(ed1->getSymbols()[6].getId(), "2_1");
     ASSERT_EQ(ed1->getSymbols()[6].getC(), 'j');
+}
+
+TEST_F(SharedEditorTest, processErase) {
+
+    ed1->getSymbols().clear();
+    ed1->setCounter(0);
+    ed1->getSymbols().push_back(Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}));
+    ed1->getSymbols().push_back(Symbol(char('k'), std::string{"1_88"}, std::vector<int>{0, 2, 4}));
+    ed1->getSymbols().push_back(Symbol(char('z'), std::string{"1_0"}, std::vector<int>{0, 5}));
+    ed1->getSymbols().push_back(Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}));
+    ed1->getSymbols().push_back(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}));
+    ed1->getSymbols().push_back(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}));
+    ed1->getSymbols().push_back(Symbol(char('o'), std::string{"0_3"}, std::vector<int>{4}));
+    ed1->getSymbols().push_back(Symbol(char('w'), std::string{"1_20"}, std::vector<int>{4, 20}));
+    ed1->getSymbols().push_back(Symbol(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2}));
+    ed1->getSymbols().push_back(Symbol(char('n'), std::string{"0_4"}, std::vector<int>{5}));
+    ed1->getSymbols().push_back(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}));
+    ed1->getSymbols().push_back(Symbol(char('o'), std::string{"0_6"}, std::vector<int>{7}));
+    ed1->getSymbols().push_back(Symbol(char('y'), std::string{"1_2"}, std::vector<int>{7, 6, 6}));
+    ed1->getSymbols().push_back(Symbol(char('y'), std::string{"1_44"}, std::vector<int>{7, 6, 6, 9}));
+    ed1->getSymbols().push_back(Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}));
+
+    Message m11(-1, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1);
+    Message m12(-1, Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}), 1);
+    Message m13(-1, Symbol(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2}), 1);
+    ed1->process(m11);
+    ed1->process(m12);
+    ed1->process(m13);
+    ASSERT_EQ(ed1->getSymbols()[0].getId(), "1_88");
+    ASSERT_EQ(ed1->getSymbols()[0].getC(), 'k');
+    ASSERT_EQ(ed1->getSymbols()[11].getId(), "1_44");
+    ASSERT_EQ(ed1->getSymbols()[11].getC(), 'y');
+    ASSERT_EQ(ed1->getSymbols()[7].getId(), "0_4");
+    ASSERT_EQ(ed1->getSymbols()[7].getC(), 'n');
+
+    ASSERT_THROW(ed1->process(Message(-2, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1)), std::runtime_error);
+    ASSERT_THROW(ed1->process(Message(2, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1)), std::runtime_error);
 }
 
 int main(int argc, char **argv) {

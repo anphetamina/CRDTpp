@@ -12,6 +12,9 @@
 #include "SharedEditor.h"
 #include "NetworkServer.h"
 
+static std::random_device random_device;
+static std::mt19937 generator(random_device());
+
 SharedEditor::SharedEditor(NetworkServer &server)
         : _server(server), _counter(0), base(32), boundary(10) {
     _siteId = server.connect(this);
@@ -41,8 +44,6 @@ bool SharedEditor::retrieveStrategy(int level) {
         return strategies.at(level);
     }
     bool strategy;
-    std::random_device random_device;
-    std::mt19937 generator(random_device());
     std::uniform_int_distribution<> distribution(1, 10);
     int n = distribution(generator);
     strategy = n % 2 == 0;
@@ -74,9 +75,6 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) const {
     if (min == max) {
         throw std::range_error("min is equal to max");
     }
-
-    std::random_device random_device;
-    std::mt19937 generator(random_device());
 
     if ((max - min) < boundary) {
         min = min + 1;
@@ -309,7 +307,7 @@ void SharedEditor::process(const Message &m) {
             break;
 
         default:
-            break;
+            throw std::runtime_error("process: forbidden action");
     }
 }
 
