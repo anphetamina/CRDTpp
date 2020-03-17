@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(CRDTpp)
+project(CRDTpp_linear)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -8,6 +8,6 @@ file(GLOB SOURCE_FILES
         "src/*.cpp"
         )
 
-add_executable(CRDTpp main.cpp ${SOURCE_FILES})
+add_executable(CRDTpp_linear main.cpp ${SOURCE_FILES})
 
 add_subdirectory(Google_tests)
