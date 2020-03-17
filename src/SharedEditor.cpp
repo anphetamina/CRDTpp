@@ -255,6 +255,87 @@ void SharedEditor::localErase(int index) {
 
 }
 
+
+/**
+ *
+ * @param symbol
+ * insert symbol right before the first higher one
+ */
+void SharedEditor::remoteInsert(Symbol symbol) {
+    auto it = std::lower_bound(_symbols.begin(), _symbols.end(), symbol);
+    int index = it - _symbols.begin();
+    if (_symbols.empty()) {
+        _symbols.insert(_symbols.begin(), symbol);
+    } else {
+        if (it->getPosition() == symbol.getPosition()) {
+            std::vector<int> sym_position;
+            sym_position = generatePosBetween(symbol.getPosition(), it->getPosition(), sym_position, 0);
+            symbol.setPosition(sym_position);
+            _symbols.insert(_symbols.begin() + (index+1), symbol);
+        } else {
+            _symbols.insert(_symbols.begin() + index, symbol);
+        }
+    }
+    _counter++;
+}
+
+/**
+ *
+ * @param symbol
+ * remove symbol
+ */
+void SharedEditor::remoteErase(Symbol symbol) {
+    if (!_symbols.empty()) {
+        auto it = std::lower_bound(_symbols.begin(), _symbols.end(), symbol);
+        int index = it - _symbols.begin();
+        if (*it == symbol) {
+            _symbols.erase(_symbols.begin() + index);
+            _counter--;
+        }
+    }
+}
+
+/*
+[1] [2,5] [5] [9,2,6] [21] [30]
+0   1     2   3       4    5
+
+s = [25,4]
+
+count = 5
+
+it->0; step=2; it->[5]
+first->[9,2,6]
+count=5-3=2
+
+it->[9,2,6]; step=1; it->[21]
+first->[30]
+count=2-2=0
+
+return first->[30]
+
+_symbols.insert(5, s)
+
+
+[1] [2,5] [5] [9,2,6] [21] [30]
+0   1     2   3       4    5
+
+s = [21]
+
+count=5
+
+it->[1]; step=2; it->[5]
+first->[9,2,6]
+count=5-3=2
+
+it->[9,2,6]; step=1; it->[21]
+count=1
+
+it->[9,2,6]; step=0; it->[9,2,6]
+first->[21]
+count=1-1=0
+
+return first->[21]
+*/
 /**
  *
  * @param m
@@ -263,11 +344,12 @@ void SharedEditor::localErase(int index) {
  */
 void SharedEditor::process(const Message &m) {
     Symbol symbol = m.getS();
-    auto it = _symbols.begin();
-    int index = 0;
+    /*auto it = _symbols.begin();
+    int index = 0;*/
     switch (m.getType()) {
         case INSERT:
-            if (_symbols.empty()) {
+            remoteInsert(symbol);
+            /*if (_symbols.empty()) {
                 _symbols.insert(_symbols.begin(), symbol);
             } else {
                 if (_symbols.back() < symbol) {
@@ -289,11 +371,12 @@ void SharedEditor::process(const Message &m) {
                     }
                 }
             }
-            _counter++;
+            _counter++;*/
             break;
 
         case DELETE:
-            if (!_symbols.empty()) {
+            remoteErase(symbol);
+            /*if (!_symbols.empty()) {
                 while (it != _symbols.end()) {
                     if (*it == symbol) {
                         _symbols.erase(_symbols.begin() + index);
@@ -303,7 +386,7 @@ void SharedEditor::process(const Message &m) {
                     it++;
                     index++;
                 }
-            }
+            }*/
             break;
 
         default:

@@ -11,8 +11,6 @@ protected:
 
     virtual void SetUp() {
 
-        ed1 = new SharedEditor(server);
-
         ed1->getSymbols().push_back(Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}));
         ed1->getSymbols().push_back(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}));
         ed1->getSymbols().push_back(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}));
@@ -24,11 +22,10 @@ protected:
     }
 
     virtual void TearDown() {
-
     }
 
     NetworkServer server;
-    SharedEditor* ed1{};
+    SharedEditor* ed1 = new SharedEditor(server);
 };
 
 
@@ -132,7 +129,7 @@ TEST_F(SharedEditorTest, localErase) {
     ASSERT_THROW(ed1->localErase(-1), std::invalid_argument);
 }
 
-TEST_F(SharedEditorTest, processInsert) {
+TEST_F(SharedEditorTest, remoteInsert) {
     std::vector<Symbol> s;
     s.push_back(Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}));
     s.push_back(Symbol(char('k'), std::string{"1_88"}, std::vector<int>{0, 2, 4}));
@@ -151,40 +148,38 @@ TEST_F(SharedEditorTest, processInsert) {
     s.push_back(Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}));
 
 
-    Message m1(1, Symbol(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2}), 1);
-    Message m2(1, Symbol(char('z'), std::string{"1_0"}, std::vector<int>{0, 5}), 1);
-    Message m3(1, Symbol(char('y'), std::string{"1_2"}, std::vector<int>{7, 6, 6}), 1);
-    Message m4(1, Symbol(char('w'), std::string{"1_20"}, std::vector<int>{4, 20}), 1);
-    Message m5(1, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1);
-    Message m6(1, Symbol(char('k'), std::string{"1_88"}, std::vector<int>{0, 2, 4}), 1);
-    Message m7(1, Symbol(char('y'), std::string{"1_44"}, std::vector<int>{7, 6, 6, 9}), 1);
-    Message m8(1, Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}), 1);
+    Symbol s1(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2});
+    Symbol s2(char('z'), std::string{"1_0"}, std::vector<int>{0, 5});
+    Symbol s3(char('y'), std::string{"1_2"}, std::vector<int>{7, 6, 6});
+    Symbol s4(char('w'), std::string{"1_20"}, std::vector<int>{4, 20});
+    Symbol s5(char('k'), std::string{"1_9"}, std::vector<int>{0, 2});
+    Symbol s6(char('k'), std::string{"1_88"}, std::vector<int>{0, 2, 4});
+    Symbol s7(char('y'), std::string{"1_44"}, std::vector<int>{7, 6, 6, 9});
+    Symbol s8(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8});
 
-    ed1->process(m1);
-    ed1->process(m2);
-    ed1->process(m3);
-    ed1->process(m4);
-    ed1->process(m5);
-    ed1->process(m6);
-    ed1->process(m7);
-    ed1->process(m8);
+    ed1->remoteInsert(s1);
+    ed1->remoteInsert(s2);
+    ed1->remoteInsert(s3);
+    ed1->remoteInsert(s4);
+    ed1->remoteInsert(s5);
+    ed1->remoteInsert(s6);
+    ed1->remoteInsert(s7);
+    ed1->remoteInsert(s8);
 
     ASSERT_EQ(s, ed1->getSymbols());
 
     Symbol s9(char('d'), std::string{"2_58"}, std::vector<int>{7, 6, 8});
-    Message m9(1, s9, 2);
-    ed1->process(m9);
+    ed1->remoteInsert(s9);
     ASSERT_EQ(ed1->getSymbols().back().getId(), "2_58");
     ASSERT_EQ(ed1->getSymbols().back().getC(), 'd');
 
     Symbol s10(char('j'), std::string{"2_1"}, std::vector<int>{3});
-    Message m10(1, s10, 2);
-    ed1->process(m10);
+    ed1->remoteInsert(s10);
     ASSERT_EQ(ed1->getSymbols()[6].getId(), "2_1");
     ASSERT_EQ(ed1->getSymbols()[6].getC(), 'j');
 }
 
-TEST_F(SharedEditorTest, processErase) {
+TEST_F(SharedEditorTest, remoteErase) {
 
     ed1->getSymbols().clear();
     ed1->setCounter(0);
@@ -204,21 +199,18 @@ TEST_F(SharedEditorTest, processErase) {
     ed1->getSymbols().push_back(Symbol(char('y'), std::string{"1_44"}, std::vector<int>{7, 6, 6, 9}));
     ed1->getSymbols().push_back(Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}));
 
-    Message m11(-1, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1);
-    Message m12(-1, Symbol(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8}), 1);
-    Message m13(-1, Symbol(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2}), 1);
-    ed1->process(m11);
-    ed1->process(m12);
-    ed1->process(m13);
+    Symbol s11(char('k'), std::string{"1_9"}, std::vector<int>{0, 2});
+    Symbol s12(char('y'), std::string{"1_56"}, std::vector<int>{7, 6, 8});
+    Symbol s13(char('x'), std::string{"1_5"}, std::vector<int>{4, 20, 2});
+    ed1->remoteErase(s11);
+    ed1->remoteErase(s12);
+    ed1->remoteErase(s13);
     ASSERT_EQ(ed1->getSymbols()[0].getId(), "1_88");
     ASSERT_EQ(ed1->getSymbols()[0].getC(), 'k');
     ASSERT_EQ(ed1->getSymbols()[11].getId(), "1_44");
     ASSERT_EQ(ed1->getSymbols()[11].getC(), 'y');
     ASSERT_EQ(ed1->getSymbols()[7].getId(), "0_4");
     ASSERT_EQ(ed1->getSymbols()[7].getC(), 'n');
-
-    ASSERT_THROW(ed1->process(Message(-2, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1)), std::runtime_error);
-    ASSERT_THROW(ed1->process(Message(2, Symbol(char('k'), std::string{"1_9"}, std::vector<int>{0, 2}), 1)), std::runtime_error);
 }
 
 int main(int argc, char **argv) {

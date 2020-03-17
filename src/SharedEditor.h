@@ -47,6 +47,8 @@ public:
     void localInsert(int index, char value);
     void localErase(int index);
     void process(const Message& m);
+    void remoteInsert(Symbol symbol);
+    void remoteErase(Symbol symbol);
     std::string to_string();
 };
 

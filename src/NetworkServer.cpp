@@ -5,8 +5,6 @@
 #include <algorithm>
 #include "NetworkServer.h"
 
-static int id = 0;
-
 int NetworkServer::connect(SharedEditor* sharedEditor) {
     editors.push_back(sharedEditor);
     return id++;
@@ -31,3 +29,5 @@ void NetworkServer::dispatchMessages() {
     }
     messages.clear();
 }
+
+NetworkServer::NetworkServer() : id(0) {}
