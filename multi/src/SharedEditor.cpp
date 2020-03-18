@@ -95,12 +95,23 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) const {
  */
 std::vector<int> SharedEditor::findPosBefore(Position pos) {
 
+    int line = pos.line;
+    int index = pos.index;
+
+    if (line < 0) {
+        throw std::out_of_range("line is negative");
+    } else if (line > _symbols.size()) {
+        throw std::out_of_range("line out of range");
+    } else if (index < 0) {
+        throw std::out_of_range("index is negative");
+    } else if (index > _symbols[line].size()) {
+        throw std::out_of_range("index out of range");
+    }
+
     if (_symbols.empty()) {
         return {0};
     }
 
-    int line = pos.line;
-    int index = pos.index;
 
     if (index == 0 && line == 0) {
         return {0};
@@ -346,7 +357,7 @@ void SharedEditor::localErase(Position startPos, Position endPos) {
  */
 void SharedEditor::remoteInsert(Symbol symbol) {
     std::vector<std::vector<Symbol>>::iterator line;
-    line = std::lower_bound(_symbols.begin(), _symbols.end(), symbol, [&](const std::vector<Symbol> & it){
+    line = std::lower_bound(_symbols.begin(), _symbols.end(), symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
         return it[0] < symbol;
     });
 
@@ -375,7 +386,38 @@ void SharedEditor::remoteInsert(Symbol symbol) {
  * remove symbol
  */
 void SharedEditor::remoteErase(Symbol symbol) {
+    if (!_symbols.empty()) {
+        std::vector<std::vector<Symbol>>::iterator line;
+        bool mergeLines = false;
+        line = std::lower_bound(_symbols.begin(), _symbols.end(), symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
+            return it[0] < symbol;
+        });
 
+        if (*line->begin() == symbol) {
+            if (line->begin()+1 == line->end()) {
+                mergeLines = true;
+            }
+            line->erase(line->begin());
+        } else {
+            std::vector<Symbol>::iterator index;
+            index = std::lower_bound(line->begin(), line->end(), symbol);
+            if (*index == symbol) {
+                if (index == line->end()) {
+                    mergeLines = true;
+                }
+                line->erase(index);
+            }
+        }
+
+        if (mergeLines) {
+            if (!(line+1)->empty()) {
+                line->insert(line->end(), (line + 1)->begin(), (line + 1)->end());
+                _symbols.erase(line + 1);
+            }
+        }
+
+        _counter--;
+    }
 }
 
 /*
@@ -442,11 +484,7 @@ void SharedEditor::process(const Message &m) {
 }
 
 std::string SharedEditor::to_string() {
-    std::string string;
-    std::for_each(_symbols.begin(), _symbols.end(), [&](Symbol s){
-        string += s.getC();
-    });
-    return string;
+
 }
 
 void SharedEditor::setServer(NetworkServer &server) {

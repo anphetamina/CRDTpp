@@ -8,9 +8,10 @@
 
 class NetworkServer;
 
-typedef struct {
+typedef struct Position {
     int line;
     int index;
+    Position(int line, int index) : line(line), index(index){};
 } Position;
 
 class SharedEditor {
