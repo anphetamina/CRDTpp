@@ -9,8 +9,8 @@
 class NetworkServer;
 
 typedef struct {
-    int row;
-    int col;
+    int line;
+    int index;
 } Position;
 
 class SharedEditor {
@@ -47,7 +47,9 @@ public:
     std::vector<int> findPosAfter(Position pos);
     void localInsert(Position pos, char value);
     void insertSymbol(Position pos, Symbol symbol);
-    void localErase(Position pos);
+    void localErase(Position startPos, Position endPos);
+    std::vector<Symbol> eraseSingleLine(Position startPos, Position endPos);
+    std::vector<Symbol> eraseMultipleLines(Position startPos, Position endPos);
     void process(const Message& m);
     void remoteInsert(Symbol symbol);
     void remoteErase(Symbol symbol);
