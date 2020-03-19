@@ -118,55 +118,145 @@ TEST_F(SharedEditorTest, insertSymbolNotCRLF) {
 
     Symbol s5('x', "0_32", {28});
     ed1->insertSymbol(Position(3, 9), s5);
-    ASSERT_EQ(s5, ed1->getSymbols()[3][9]);
+    ASSERT_EQ(ed1->getSymbols()[3].size(), 10);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_23"}, std::vector<int>{21}), ed1->getSymbols()[3][0]);
+    ASSERT_EQ(Symbol(char('m'), std::string{"0_24"}, std::vector<int>{21, 2}), ed1->getSymbols()[3][1]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_25"}, std::vector<int>{23, 1}), ed1->getSymbols()[3][2]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_26"}, std::vector<int>{24}), ed1->getSymbols()[3][3]);
+    ASSERT_EQ(Symbol(char('u'), std::string{"0_27"}, std::vector<int>{24, 5, 6}), ed1->getSymbols()[3][4]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_28"}, std::vector<int>{24, 5, 8}), ed1->getSymbols()[3][5]);
+    ASSERT_EQ(Symbol(char('l'), std::string{"0_29"}, std::vector<int>{24, 6}), ed1->getSymbols()[3][6]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}), ed1->getSymbols()[3][7]);
     ASSERT_EQ(Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}), ed1->getSymbols()[3][8]);
+    ASSERT_EQ(s5, ed1->getSymbols()[3][9]);
 
     Symbol s1('x', "0_33", {0, 5});
     ed1->insertSymbol(Position(0, 0), s1);
+    ASSERT_EQ(ed1->getSymbols()[0].size(), 9);
     ASSERT_EQ(s1, ed1->getSymbols()[0][0]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}), ed1->getSymbols()[0][1]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}), ed1->getSymbols()[0][2]);
+    ASSERT_EQ(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}), ed1->getSymbols()[0][3]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_3"}, std::vector<int>{3, 9, 10}), ed1->getSymbols()[0][4]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_4"}, std::vector<int>{3, 10}), ed1->getSymbols()[0][5]);
+    ASSERT_EQ(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}), ed1->getSymbols()[0][6]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_6"}, std::vector<int>{7}), ed1->getSymbols()[0][7]);
+    ASSERT_EQ(Symbol(char('\n'), std::string{"0_7"}, std::vector<int>{7, 2, 1}), ed1->getSymbols()[0][8]);
+
 
     Symbol s2('x', "0_34", {27, 8, 3});
     ed1->insertSymbol(Position(3, 8), s2);
+    ASSERT_EQ(ed1->getSymbols()[3].size(), 11);
     ASSERT_EQ(s2, ed1->getSymbols()[3][8]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_23"}, std::vector<int>{21}), ed1->getSymbols()[3][0]);
+    ASSERT_EQ(Symbol(char('m'), std::string{"0_24"}, std::vector<int>{21, 2}), ed1->getSymbols()[3][1]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_25"}, std::vector<int>{23, 1}), ed1->getSymbols()[3][2]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_26"}, std::vector<int>{24}), ed1->getSymbols()[3][3]);
+    ASSERT_EQ(Symbol(char('u'), std::string{"0_27"}, std::vector<int>{24, 5, 6}), ed1->getSymbols()[3][4]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_28"}, std::vector<int>{24, 5, 8}), ed1->getSymbols()[3][5]);
+    ASSERT_EQ(Symbol(char('l'), std::string{"0_29"}, std::vector<int>{24, 6}), ed1->getSymbols()[3][6]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}), ed1->getSymbols()[3][7]);
+    ASSERT_EQ(Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}), ed1->getSymbols()[3][9]);
+    ASSERT_EQ(s5, ed1->getSymbols()[3][10]);
 
     Symbol s3('x', "0_35", {19, 8, 2, 2});
     ed1->insertSymbol(Position(2, 5), s3);
+    ASSERT_EQ(ed1->getSymbols()[2].size(), 7);
     ASSERT_EQ(s3, ed1->getSymbols()[2][5]);
+    ASSERT_EQ(Symbol(char('m'), std::string{"0_17"}, std::vector<int>{16}), ed1->getSymbols()[2][0]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_18"}, std::vector<int>{17}), ed1->getSymbols()[2][1]);
+    ASSERT_EQ(Symbol(char('r'), std::string{"0_19"}, std::vector<int>{17, 1}), ed1->getSymbols()[2][2]);
+    ASSERT_EQ(Symbol(char('c'), std::string{"0_20"}, std::vector<int>{19}), ed1->getSymbols()[2][3]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_21"}, std::vector<int>{19, 8, 2}), ed1->getSymbols()[2][4]);
+    ASSERT_EQ(Symbol(char('\n'), std::string{"0_22"}, std::vector<int>{19, 8, 2, 3}), ed1->getSymbols()[2][6]);
 
     Symbol s4('x', "0_36", {7, 2, 3});
     ed1->insertSymbol(Position(1, 0), s4);
+    ASSERT_EQ(ed1->getSymbols()[1].size(), 10);
     ASSERT_EQ(s4, ed1->getSymbols()[1][0]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_8"}, std::vector<int>{7, 2, 5, 6}), ed1->getSymbols()[1][1]);
+    ASSERT_EQ(Symbol(char('g'), std::string{"0_9"}, std::vector<int>{9, 9}), ed1->getSymbols()[1][2]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_10"}, std::vector<int>{10, 3, 6}), ed1->getSymbols()[1][3]);
+    ASSERT_EQ(Symbol(char('s'), std::string{"0_11"}, std::vector<int>{11}), ed1->getSymbols()[1][4]);
+    ASSERT_EQ(Symbol(char('t'), std::string{"0_12"}, std::vector<int>{11, 3, 5}), ed1->getSymbols()[1][5]);
+    ASSERT_EQ(Symbol(char('i'), std::string{"0_13"}, std::vector<int>{12, 9, 7, 6}), ed1->getSymbols()[1][6]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_14"}, std::vector<int>{12, 9, 7, 9}), ed1->getSymbols()[1][7]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_15"}, std::vector<int>{15}), ed1->getSymbols()[1][8]);
+    ASSERT_EQ(Symbol(char('\n'), std::string{"0_16"}, std::vector<int>{15, 8}), ed1->getSymbols()[1][9]);
 }
 
 TEST_F(SharedEditorTest, insertSymbolCRLF) {
 
     Symbol s5('\n', "0_37", {29});
     ed1->insertSymbol(Position(3, 9), s5);
-    ASSERT_EQ(Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}), ed1->getSymbols()[3][8]);
+    ASSERT_EQ(ed1->getSymbols()[3].size(), 10);
     ASSERT_EQ(s5, ed1->getSymbols()[3][9]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_23"}, std::vector<int>{21}), ed1->getSymbols()[3][0]);
+    ASSERT_EQ(Symbol(char('m'), std::string{"0_24"}, std::vector<int>{21, 2}), ed1->getSymbols()[3][1]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_25"}, std::vector<int>{23, 1}), ed1->getSymbols()[3][2]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_26"}, std::vector<int>{24}), ed1->getSymbols()[3][3]);
+    ASSERT_EQ(Symbol(char('u'), std::string{"0_27"}, std::vector<int>{24, 5, 6}), ed1->getSymbols()[3][4]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_28"}, std::vector<int>{24, 5, 8}), ed1->getSymbols()[3][5]);
+    ASSERT_EQ(Symbol(char('l'), std::string{"0_29"}, std::vector<int>{24, 6}), ed1->getSymbols()[3][6]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}), ed1->getSymbols()[3][7]);
+    ASSERT_EQ(Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}), ed1->getSymbols()[3][8]);
 
     Symbol s2('\n', "0_34", {27, 8, 3});
     ed1->insertSymbol(Position(3, 8), s2);
+    ASSERT_EQ(ed1->getSymbols()[3].size(), 9);
+    ASSERT_EQ(ed1->getSymbols()[4].size(), 2);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_23"}, std::vector<int>{21}), ed1->getSymbols()[3][0]);
+    ASSERT_EQ(Symbol(char('m'), std::string{"0_24"}, std::vector<int>{21, 2}), ed1->getSymbols()[3][1]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_25"}, std::vector<int>{23, 1}), ed1->getSymbols()[3][2]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_26"}, std::vector<int>{24}), ed1->getSymbols()[3][3]);
+    ASSERT_EQ(Symbol(char('u'), std::string{"0_27"}, std::vector<int>{24, 5, 6}), ed1->getSymbols()[3][4]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_28"}, std::vector<int>{24, 5, 8}), ed1->getSymbols()[3][5]);
+    ASSERT_EQ(Symbol(char('l'), std::string{"0_29"}, std::vector<int>{24, 6}), ed1->getSymbols()[3][6]);
+    ASSERT_EQ(Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}), ed1->getSymbols()[3][7]);
     ASSERT_EQ(s2, ed1->getSymbols()[3][8]);
     ASSERT_EQ(Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}), ed1->getSymbols()[4][0]);
+    ASSERT_EQ(s5, ed1->getSymbols()[4][1]);
 
     Symbol s3('\n', "0_35", {17, 5});
     ed1->insertSymbol(Position(2, 3), s3);
-    ASSERT_EQ(s3, ed1->getSymbols()[2][3]);
+    ASSERT_EQ(ed1->getSymbols()[2].size(), 4);
     ASSERT_EQ(ed1->getSymbols()[3].size(), 3);
+    ASSERT_EQ(Symbol(char('m'), std::string{"0_17"}, std::vector<int>{16}), ed1->getSymbols()[2][0]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_18"}, std::vector<int>{17}), ed1->getSymbols()[2][1]);
+    ASSERT_EQ(Symbol(char('r'), std::string{"0_19"}, std::vector<int>{17, 1}), ed1->getSymbols()[2][2]);
+    ASSERT_EQ(s3, ed1->getSymbols()[2][3]);
     ASSERT_EQ(Symbol(char('c'), std::string{"0_20"}, std::vector<int>{19}), ed1->getSymbols()[3][0]);
     ASSERT_EQ(Symbol(char('o'), std::string{"0_21"}, std::vector<int>{19, 8, 2}), ed1->getSymbols()[3][1]);
     ASSERT_EQ(Symbol(char('\n'), std::string{"0_22"}, std::vector<int>{19, 8, 2, 3}), ed1->getSymbols()[3][2]);
 
     Symbol s4('\n', "0_36", {7, 2, 3});
     ed1->insertSymbol(Position(1, 0), s4);
+    ASSERT_EQ(ed1->getSymbols()[1].size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[2].size(), 9);
     ASSERT_EQ(s4, ed1->getSymbols()[1][0]);
     ASSERT_EQ(Symbol(char('a'), std::string{"0_8"}, std::vector<int>{7, 2, 5, 6}), ed1->getSymbols()[2][0]);
+    ASSERT_EQ(Symbol(char('g'), std::string{"0_9"}, std::vector<int>{9, 9}), ed1->getSymbols()[2][1]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_10"}, std::vector<int>{10, 3, 6}), ed1->getSymbols()[2][2]);
+    ASSERT_EQ(Symbol(char('s'), std::string{"0_11"}, std::vector<int>{11}), ed1->getSymbols()[2][3]);
+    ASSERT_EQ(Symbol(char('t'), std::string{"0_12"}, std::vector<int>{11, 3, 5}), ed1->getSymbols()[2][4]);
+    ASSERT_EQ(Symbol(char('i'), std::string{"0_13"}, std::vector<int>{12, 9, 7, 6}), ed1->getSymbols()[2][5]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_14"}, std::vector<int>{12, 9, 7, 9}), ed1->getSymbols()[2][6]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_15"}, std::vector<int>{15}), ed1->getSymbols()[2][7]);
+    ASSERT_EQ(Symbol(char('\n'), std::string{"0_16"}, std::vector<int>{15, 8}), ed1->getSymbols()[2][8]);
 
     Symbol s1('\n', "0_33", {0, 5});
     ed1->insertSymbol(Position(0, 0), s1);
+    ASSERT_EQ(ed1->getSymbols()[0].size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[1].size(), 8);
     ASSERT_EQ(s1, ed1->getSymbols()[0][0]);
-    ASSERT_EQ(Symbol('a', "0_0", {1}), ed1->getSymbols()[1][0]);
+    ASSERT_EQ(Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}), ed1->getSymbols()[1][0]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_1"}, std::vector<int>{2}), ed1->getSymbols()[1][1]);
+    ASSERT_EQ(Symbol(char('t'), std::string{"0_2"}, std::vector<int>{3}), ed1->getSymbols()[1][2]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_3"}, std::vector<int>{3, 9, 10}), ed1->getSymbols()[1][3]);
+    ASSERT_EQ(Symbol(char('n'), std::string{"0_4"}, std::vector<int>{3, 10}), ed1->getSymbols()[1][4]);
+    ASSERT_EQ(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}), ed1->getSymbols()[1][5]);
+    ASSERT_EQ(Symbol(char('o'), std::string{"0_6"}, std::vector<int>{7}), ed1->getSymbols()[1][6]);
+    ASSERT_EQ(Symbol(char('\n'), std::string{"0_7"}, std::vector<int>{7, 2, 1}), ed1->getSymbols()[1][7]);
 }
 
 TEST_F(SharedEditorTest, localInsertNotCRLF) {
