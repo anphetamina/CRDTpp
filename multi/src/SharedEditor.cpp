@@ -130,12 +130,22 @@ std::vector<int> SharedEditor::findPosBefore(Position pos) {
  */
 std::vector<int> SharedEditor::findPosAfter(Position pos) {
 
+    int line = pos.line;
+    int index = pos.index;
+
+    if (line < 0) {
+        throw std::out_of_range("line is negative");
+    } else if (line > _symbols.size()) {
+        throw std::out_of_range("line out of range");
+    } else if (index < 0) {
+        throw std::out_of_range("index is negative");
+    } else if (index > _symbols[line].size()) {
+        throw std::out_of_range("index out of range");
+    }
+
     if (_symbols.empty()) {
         return {this->base};
     }
-
-    int line = pos.line;
-    int index = pos.index;
 
     int nLines = _symbols.size();
 
@@ -211,16 +221,24 @@ std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::ve
  * insert symbol at the given pos
  */
 void SharedEditor::insertSymbol(Position pos, Symbol symbol) {
-    if (pos.index == _symbols.size()) {
-        _symbols.emplace_back();
-    }
 
     int line = pos.line;
     int index = pos.index;
     char value = symbol.getC();
 
+    if (line == _symbols.size()) {
+        _symbols.emplace_back();
+    }
+
     if (value == '\n') {
-        std::vector<Symbol> lineAfter(_symbols[line].begin() + index+1, _symbols[line].end());
+
+        std::vector<Symbol> lineAfter;
+
+        if (index == _symbols[line].size()) {
+            lineAfter = {};
+        } else {
+            lineAfter.assign(_symbols[line].begin() + index, _symbols[line].end());
+        }
 
         if (lineAfter.empty()) {
             _symbols[line].push_back(symbol);
@@ -247,13 +265,14 @@ void SharedEditor::localInsert(Position pos, char value) {
     sym_id.append("_");
     sym_id.append(std::to_string(_counter));
     std::vector<int> sym_position;
-
-    std::vector<int> pos1 = findPosBefore(pos);
-    std::vector<int> pos2 = findPosAfter(pos);
+    std::vector<int> pos1;
+    std::vector<int> pos2;
     try {
+        pos1 = findPosBefore(pos);
+        pos2 = findPosAfter(pos);
         sym_position = generatePosBetween(pos1, pos2, sym_position, 0);
     } catch (std::exception& e) {
-        std::cout << e.what() << std::endl << "localInsert failed" << std::endl;
+        std::cout << e.what() << std::endl << ", localInsert failed" << std::endl;
         return;
     }
 
@@ -269,16 +288,15 @@ void SharedEditor::localInsert(Position pos, char value) {
  *
  * @param startPos
  * @param endPos
- * @return symbols erased from startPos to endPos in a single line
+ * @return symbols erased from [startPos, endPos] in a single line
  */
 std::vector<Symbol> SharedEditor::eraseSingleLine(Position startPos, Position endPos) {
     int startIndex = startPos.index;
-    int endIndex = endPos.index;
+    int endIndex = endPos.index+1;
     int line = startPos.line;
-    int numSym = endIndex - startIndex;
 
-    std::vector<Symbol> symbols(_symbols[line].begin(), _symbols[line].begin() + numSym);
-    _symbols[line].erase(_symbols[line].begin(), _symbols[line].begin() + numSym);
+    std::vector<Symbol> symbols(_symbols[line].begin() + startIndex, _symbols[line].begin() + endIndex);
+    _symbols[line].erase(_symbols[line].begin() + startIndex, _symbols[line].begin() + endIndex);
 
     return symbols;
 }
