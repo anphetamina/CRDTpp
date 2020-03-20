@@ -66,5 +66,11 @@ int main() {
     std::cout << "ed1: " << ed1.to_string() << std::endl;
     std::cout << "ed2: " << ed2.to_string() << std::endl;
 
+    /*ed1.localInsert(0, 'a');
+    ed1.localInsert(1, 'b');
+    ed1.localInsert(2, 'c');
+    ed1.localErase(1);
+    ed1.localInsert(3, 'd');*/
+
     return 0;
 }

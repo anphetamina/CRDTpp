@@ -16,7 +16,7 @@ static std::random_device random_device;
 static std::mt19937 generator(random_device());
 
 SharedEditor::SharedEditor(NetworkServer &server)
-        : _server(server), _counter(0), base(32), boundary(10) {
+        : _server(server), _counter(0), base(32), boundary(10), counter_id(0) {
     _siteId = server.connect(this);
 }
 
@@ -205,7 +205,7 @@ void SharedEditor::localInsert(int index, char value) {
 
     std::string sym_id = std::to_string(_siteId);
     sym_id.append("_");
-    sym_id.append(std::to_string(_counter));
+    sym_id.append(std::to_string(counter_id));
     std::vector<int> sym_position;
 
     std::vector<int> pos1 = findPosBefore(index);
@@ -224,6 +224,7 @@ void SharedEditor::localInsert(int index, char value) {
         _symbols.insert(_symbols.begin() + index, sym);
     }
     _counter++;
+    counter_id++;
     Message m(INSERT, sym, _siteId);
     _server.send(m);
 }
@@ -344,49 +345,13 @@ return first->[21]
  */
 void SharedEditor::process(const Message &m) {
     Symbol symbol = m.getS();
-    /*auto it = _symbols.begin();
-    int index = 0;*/
     switch (m.getType()) {
         case INSERT:
             remoteInsert(symbol);
-            /*if (_symbols.empty()) {
-                _symbols.insert(_symbols.begin(), symbol);
-            } else {
-                if (_symbols.back() < symbol) {
-                    _symbols.push_back(symbol);
-                } else {
-                    while (it != _symbols.end()) {
-                        if (symbol < *it) {
-                            _symbols.insert(_symbols.begin() + index, symbol);
-                            break;
-                        } else if (symbol.getPosition() == it->getPosition()) {
-                            std::vector<int> sym_position;
-                            sym_position = generatePosBetween(symbol.getPosition(), it->getPosition(), sym_position, 0);
-                            symbol.setPosition(sym_position);
-                            _symbols.insert(_symbols.begin() + (index+1), symbol);
-                            break;
-                        }
-                        it++;
-                        index++;
-                    }
-                }
-            }
-            _counter++;*/
             break;
 
         case DELETE:
             remoteErase(symbol);
-            /*if (!_symbols.empty()) {
-                while (it != _symbols.end()) {
-                    if (*it == symbol) {
-                        _symbols.erase(_symbols.begin() + index);
-                        _counter--;
-                        break;
-                    }
-                    it++;
-                    index++;
-                }
-            }*/
             break;
 
         default:
