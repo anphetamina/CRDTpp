@@ -402,18 +402,10 @@ void SharedEditor::remoteInsert(Symbol symbol) {
      * 1 0 -> 0
      * 1 1 -> 0
      */
-#define A line_it == _symbols.begin()
-#define B line_it->front().getPosition() == symbol.getPosition()
 
-    if (A) {
-        // no decrement
-    } else {
-        if (B) {
-            // no decrement
-        } else {
-            line_it--;
-            line--;
-        }
+    if (!(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
+        line_it--;
+        line--;
     }
 
     std::vector<Symbol>::iterator index_it;
