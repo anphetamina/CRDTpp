@@ -12,7 +12,7 @@ static std::random_device random_device;
 static std::mt19937 generator(random_device());
 
 SharedEditor::SharedEditor(NetworkServer &server)
-        : _server(server), _counter(0), base(32), boundary(10) {
+        : _server(server), _counter(0), base(32), boundary(10), counter_id(0) {
     _siteId = server.connect(this);
 }
 
@@ -263,7 +263,7 @@ void SharedEditor::localInsert(Position pos, char value) {
 
     std::string sym_id = std::to_string(_siteId);
     sym_id.append("_");
-    sym_id.append(std::to_string(_counter));
+    sym_id.append(std::to_string(counter_id));
     std::vector<int> sym_position;
     std::vector<int> pos1;
     std::vector<int> pos2;
@@ -279,6 +279,7 @@ void SharedEditor::localInsert(Position pos, char value) {
     Symbol sym(value, sym_id, sym_position);
     insertSymbol(pos, sym);
     _counter++;
+    counter_id++;
 
     Message m(INSERT, sym, _siteId);
     _server.send(m);

@@ -23,6 +23,7 @@ private:
     std::map<int, bool> strategies;
     int base;
     int boundary;
+    uint64_t counter_id;
 
 public:
     void setCounter(int counter);
