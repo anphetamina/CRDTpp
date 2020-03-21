@@ -393,22 +393,39 @@ void SharedEditor::remoteInsert(Symbol symbol) {
     });
     int line = line_it - _symbols.begin();
 
-    if (line_it == _symbols.begin() && symbol < (*line_it)[0]) {
-        insertSymbol(Position(0, 0), symbol);
+    /*
+     * A = line_it == _symbols.begin()
+     * B = line_it->front().getPosition() == symbol.getPosition()
+     * A B
+     * 0 0 -> 1
+     * 0 1 -> 0
+     * 1 0 -> 0
+     * 1 1 -> 0
+     */
+#define A line_it == _symbols.begin()
+#define B line_it->front().getPosition() == symbol.getPosition()
+
+    if (A) {
+        // no decrement
     } else {
-        line_it--;
-        line--;
-        std::vector<Symbol>::iterator index_it;
-        index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
-        int index = index_it - line_it->begin();
-        if (index_it->getPosition() == symbol.getPosition()) {
-            std::vector<int> sym_position;
-            sym_position = generatePosBetween(symbol.getPosition(), index_it->getPosition(), sym_position, 0);
-            symbol.setPosition(sym_position);
-            insertSymbol(Position(line, index + 1), symbol);
+        if (B) {
+            // no decrement
         } else {
-            insertSymbol(Position(line, index), symbol);
+            line_it--;
+            line--;
         }
+    }
+
+    std::vector<Symbol>::iterator index_it;
+    index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
+    int index = index_it - line_it->begin();
+    if (index_it->getPosition() == symbol.getPosition()) {
+        std::vector<int> sym_position;
+        sym_position = generatePosBetween(symbol.getPosition(), index_it->getPosition(), sym_position, 0);
+        symbol.setPosition(sym_position);
+        insertSymbol(Position(line, index + 1), symbol);
+    } else {
+        insertSymbol(Position(line, index), symbol);
     }
 
     _counter++;
@@ -434,6 +451,7 @@ void SharedEditor::remoteErase(Symbol symbol) {
             }
             line_it->erase(line_it->begin());
         } else {
+            line_it--;
             std::vector<Symbol>::iterator index_it;
             index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
             if (*index_it == symbol) {

@@ -466,6 +466,11 @@ TEST_F(SharedEditorTest, remoteInsert) {
     ASSERT_EQ(ed1->getSymbols()[0][0], s5);
     ASSERT_EQ(ed1->getSymbols()[0][1], Symbol(char('a'), std::string{"0_0"}, std::vector<int>{1}));
 
+    Symbol s8('t', "0_39", {0, 4});
+    ed1->remoteInsert(s8);
+    ASSERT_EQ(ed1->getSymbols()[0][0], s5);
+    ASSERT_EQ(ed1->getSymbols()[0][1], s8);
+
 }
 
 TEST_F(SharedEditorTest, remoteErase) {
