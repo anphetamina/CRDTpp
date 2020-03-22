@@ -396,17 +396,33 @@ void SharedEditor::remoteInsert(Symbol symbol) {
     /*
      * A = line_it == _symbols.begin()
      * B = line_it->front().getPosition() == symbol.getPosition()
-     * A B
-     * 0 0 -> 1
-     * 0 1 -> 0
-     * 1 0 -> 0
-     * 1 1 -> 0
+     * C = line_it == _symbols.end()
+     *
+     * C A B
+     * 0 0 0 -> 1
+     * 0 0 1 -> 0
+     * 0 1 0 -> 0
+     * 0 1 1 -> 0
+     *
+     * 1 0 - -> 1
+     * 1 0 - -> 1
+     * 1 1 - -> 0
+     * 1 1 - -> 0
      */
 
-    if (!(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
-        line_it--;
-        line--;
+    if (!(line_it == _symbols.end())) {
+        if (!(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
+            line_it--;
+            line--;
+        }
+    } else {
+        if (!(line_it == _symbols.begin())) {
+            line_it--;
+            line--;
+        }
     }
+
+
 
     std::vector<Symbol>::iterator index_it;
     index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
