@@ -44,6 +44,8 @@ protected:
         ed1->getSymbols()[3].push_back(Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}));
         ed1->getSymbols()[3].push_back(Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}));
         ed1->setCounter(32);
+        ed1->setIdCounter(32);
+        ed1->setLineCounter(4);
     }
 
     virtual void TearDown() {
@@ -118,6 +120,11 @@ TEST_F(SharedEditorTest, generatePosBetween) {
 
 TEST_F(SharedEditorTest, insertSymbolNotCRLF) {
 
+    /*Symbol s6('p', "0_37", {30});
+    ed1->insertSymbol(Position(4, 0), s6);
+    ASSERT_EQ(ed1->getSymbols()[3].size(), 9);
+    ASSERT_EQ(ed1->getSymbols()[4].size(), 1);*/
+
     Symbol s5('x', "0_32", {28});
     ed1->insertSymbol(Position(3, 9), s5);
     ASSERT_EQ(ed1->getSymbols()[3].size(), 9);
@@ -132,6 +139,7 @@ TEST_F(SharedEditorTest, insertSymbolNotCRLF) {
     ASSERT_EQ(Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}), ed1->getSymbols()[3][7]);
     ASSERT_EQ(Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}), ed1->getSymbols()[3][8]);
     ASSERT_EQ(s5, ed1->getSymbols()[4][0]);
+//    ASSERT_EQ(s6, ed1->getSymbols()[4][1]);
 
     Symbol s1('x', "0_33", {0, 5});
     ed1->insertSymbol(Position(0, 0), s1);
@@ -185,6 +193,13 @@ TEST_F(SharedEditorTest, insertSymbolNotCRLF) {
     ASSERT_EQ(Symbol(char('n'), std::string{"0_14"}, std::vector<int>{12, 9, 7, 9}), ed1->getSymbols()[1][7]);
     ASSERT_EQ(Symbol(char('o'), std::string{"0_15"}, std::vector<int>{15}), ed1->getSymbols()[1][8]);
     ASSERT_EQ(Symbol(char('\n'), std::string{"0_16"}, std::vector<int>{15, 8}), ed1->getSymbols()[1][9]);
+
+    ed1->getSymbols().clear();
+    ed1->setLineCounter(0);
+    ed1->setCounter(0);
+    ed1->insertSymbol(Position(0, 0), s4);
+    ASSERT_EQ(ed1->getSymbols().size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[0][0], s4);
 }
 
 TEST_F(SharedEditorTest, insertSymbolCRLF) {
@@ -260,6 +275,13 @@ TEST_F(SharedEditorTest, insertSymbolCRLF) {
     ASSERT_EQ(Symbol(char('i'), std::string{"0_5"}, std::vector<int>{6}), ed1->getSymbols()[1][5]);
     ASSERT_EQ(Symbol(char('o'), std::string{"0_6"}, std::vector<int>{7}), ed1->getSymbols()[1][6]);
     ASSERT_EQ(Symbol(char('\n'), std::string{"0_7"}, std::vector<int>{7, 2, 1}), ed1->getSymbols()[1][7]);
+
+    ed1->getSymbols().clear();
+    ed1->setLineCounter(0);
+    ed1->setCounter(0);
+    ed1->insertSymbol(Position(0, 0), s1);
+    ASSERT_EQ(ed1->getSymbols().size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[0][0], s1);
 }
 
 TEST_F(SharedEditorTest, localInsertNotCRLF) {
@@ -278,6 +300,13 @@ TEST_F(SharedEditorTest, localInsertNotCRLF) {
 
     ed1->localInsert(Position(1, 0), 'q');
     ASSERT_EQ('q', ed1->getSymbols()[1][0].getC());
+
+    ed1->getSymbols().clear();
+    ed1->setLineCounter(0);
+    ed1->setCounter(0);
+    ed1->localInsert(Position(0, 0), 'a');
+    ASSERT_EQ(ed1->getSymbols().size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[0][0].getC(), 'a');
 }
 
 TEST_F(SharedEditorTest, localInsertCRLF) {
@@ -301,6 +330,13 @@ TEST_F(SharedEditorTest, localInsertCRLF) {
     ed1->localInsert(Position(0, 0), '\n');
     ASSERT_EQ('\n', ed1->getSymbols()[0][0].getC());
     ASSERT_EQ('a', ed1->getSymbols()[1][0].getC());
+
+    ed1->getSymbols().clear();
+    ed1->setLineCounter(0);
+    ed1->setCounter(0);
+    ed1->localInsert(Position(0, 0), '\n');
+    ASSERT_EQ(ed1->getSymbols().size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[0][0].getC(), '\n');
 }
 
 TEST_F(SharedEditorTest, eraseSingleLine) {
@@ -423,6 +459,7 @@ TEST_F(SharedEditorTest, localEraseMultipleLine) {
     ASSERT_EQ(Symbol(char('o'), std::string{"0_15"}, std::vector<int>{15}), ed1->getSymbols()[0][13]);
 
     ed1->getSymbols().emplace_back();
+    ed1->setLineCounter(ed1->getLineCounter()+1);
     ed1->getSymbols().back().push_back(Symbol(char('x'), std::string{"0_32"}, std::vector<int>{16}));
     ed1->setCounter(ed1->getCounter()+1);
     ed1->localErase(Position(0, 0), Position(1, 0));
@@ -471,6 +508,21 @@ TEST_F(SharedEditorTest, remoteInsert) {
     ASSERT_EQ(ed1->getSymbols()[0][0], s5);
     ASSERT_EQ(ed1->getSymbols()[0][1], s8);
 
+    ed1->getSymbols().clear();
+    ed1->setLineCounter(0);
+    ed1->setCounter(0);
+    Symbol s9('a', "0_40", {30});
+    ed1->remoteInsert(s9);
+    ASSERT_EQ(ed1->getSymbols()[0].size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[0][0], s9);
+
+    ed1->getSymbols().clear();
+    ed1->setLineCounter(0);
+    ed1->setCounter(0);
+    Symbol s10('\n', "0_41", {30});
+    ed1->remoteInsert(s10);
+    ASSERT_EQ(ed1->getSymbols()[0].size(), 1);
+    ASSERT_EQ(ed1->getSymbols()[0][0], s10);
 }
 
 TEST_F(SharedEditorTest, remoteErase) {

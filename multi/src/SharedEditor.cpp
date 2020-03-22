@@ -12,7 +12,7 @@ static std::random_device random_device;
 static std::mt19937 generator(random_device());
 
 SharedEditor::SharedEditor(NetworkServer &server)
-        : _server(server), _counter(0), base(32), boundary(10), counter_id(0) {
+        : _server(server), _counter(0), base(32), boundary(10), _id_counter(0), _line_counter(0) {
     _siteId = server.connect(this);
 }
 
@@ -147,7 +147,7 @@ std::vector<int> SharedEditor::findPosAfter(Position pos) {
         return {this->base};
     }
 
-    int nLines = _symbols.size();
+    int nLines = _line_counter;
 
     if (line == nLines - 1 && index == _symbols[nLines - 1].size()) {
         return {this->base};
@@ -226,21 +226,21 @@ void SharedEditor::insertSymbol(Position pos, Symbol symbol) {
     int index = pos.index;
     char value = symbol.getC();
 
-    if (_symbols.begin()+line == _symbols.end()) {
+    if (_symbols.empty()) {
         _symbols.emplace_back();
-    }
-
-    if (_symbols[line].begin()+index == _symbols[line].end()) {
+        _line_counter++;
+    } else if (_symbols[line].begin()+index == _symbols[line].end()) { // todo check this condition
         line++;
         index = 0;
         _symbols.emplace_back();
+        _line_counter++;
     }
 
     if (value == '\n') {
 
         std::vector<Symbol> lineAfter;
 
-        if (index == _symbols[line].size()) {
+        if (_symbols[line].begin()+index == _symbols[line].end()) { // todo check this condition
             lineAfter = {};
         } else {
             lineAfter.assign(_symbols[line].begin() + index, _symbols[line].end());
@@ -253,10 +253,14 @@ void SharedEditor::insertSymbol(Position pos, Symbol symbol) {
             lineBefore.push_back(symbol);
             _symbols[line] = lineBefore;
             _symbols.insert(_symbols.begin() + line + 1, lineAfter);
+            _line_counter++;
         }
     } else {
         _symbols[line].insert(_symbols[line].begin() + index, symbol);
     }
+
+    _counter++;
+    _id_counter++;
 }
 
 /**
@@ -269,7 +273,7 @@ void SharedEditor::localInsert(Position pos, char value) {
 
     std::string sym_id = std::to_string(_siteId);
     sym_id.append("_");
-    sym_id.append(std::to_string(counter_id));
+    sym_id.append(std::to_string(_id_counter));
     std::vector<int> sym_position;
     std::vector<int> pos1;
     std::vector<int> pos2;
@@ -284,8 +288,6 @@ void SharedEditor::localInsert(Position pos, char value) {
 
     Symbol sym(value, sym_id, sym_position);
     insertSymbol(pos, sym);
-    _counter++;
-    counter_id++;
 
     Message m(INSERT, sym, _siteId);
     _server.send(m);
@@ -304,6 +306,7 @@ std::vector<Symbol> SharedEditor::eraseSingleLine(Position startPos, Position en
 
     std::vector<Symbol> symbols(_symbols[line].begin() + startIndex, _symbols[line].begin() + endIndex);
     _symbols[line].erase(_symbols[line].begin() + startIndex, _symbols[line].begin() + endIndex);
+    _counter -= (endIndex - startIndex);
 
     return symbols;
 }
@@ -329,7 +332,9 @@ std::vector<Symbol> SharedEditor::eraseMultipleLines(Position startPos, Position
     _symbols[endLine].erase(_symbols[endLine].begin(), _symbols[endLine].begin() + endIndex + 1);
     if (endLine-startLine != 1) {
         _symbols.erase(_symbols.begin() + startLine + 1, _symbols.begin() + endLine);
+        _line_counter -= (endLine-startLine);
     }
+    _counter -= symbols.size();
 
     return symbols;
 }
@@ -348,7 +353,7 @@ void SharedEditor::localErase(Position startPos, Position endPos) {
 
     std::vector<Symbol> symbols;
     bool mergeLines = false;
-    if (_symbols.empty()) {
+    if (_symbols.empty() || _line_counter <= startLine) {
         return;
     } else if (startLine != endLine) {
         symbols = eraseMultipleLines(startPos, endPos);
@@ -358,6 +363,7 @@ void SharedEditor::localErase(Position startPos, Position endPos) {
         if (symbols.back().getC() == '\n') {
             if (_symbols.back().empty()) {
                 _symbols.erase(_symbols.end());
+                _line_counter--;
             } else {
                 mergeLines = true;
             }
@@ -367,14 +373,15 @@ void SharedEditor::localErase(Position startPos, Position endPos) {
     if (mergeLines) {
         _symbols[startLine].insert(_symbols[startLine].end(), _symbols[startLine+1].begin(), _symbols[startLine+1].end());
         _symbols.erase(_symbols.begin() + startLine+1);
+        _line_counter--;
         if (_symbols[startLine].empty()) {
             _symbols.erase(_symbols.begin() + startLine);
+            _line_counter--;
         }
     }
 
     for (Symbol sym : symbols) {
         Message m(DELETE, sym, _siteId);
-        _counter--;
         _server.send(m);
     }
 
@@ -408,21 +415,30 @@ void SharedEditor::remoteInsert(Symbol symbol) {
      * 1 0 - -> 1
      * 1 1 - -> 0
      * 1 1 - -> 0
+     *
+     * if (!C) {
+     *      if (!(A || B)) {
+     *          decrement
+     *      }
+     * } else {
+     *      if (!A) {
+     *          decrement
+     *      }
+     * }
      */
 
-    if (!(line_it == _symbols.end())) {
-        if (!(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
-            line_it--;
-            line--;
-        }
-    } else {
-        if (!(line_it == _symbols.begin())) {
-            line_it--;
-            line--;
-        }
+    if (_symbols.empty()) {
+        insertSymbol(Position(0, 0), symbol);
+        return;
     }
 
-
+    if (!(line_it == _symbols.end()) && (!(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition()))) {
+        line_it--;
+        line--;
+    } else if (!(line_it == _symbols.begin())) {
+        line_it--;
+        line--;
+    }
 
     std::vector<Symbol>::iterator index_it;
     index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
@@ -459,7 +475,6 @@ void SharedEditor::remoteErase(Symbol symbol) {
             }
             line_it->erase(line_it->begin());
         } else {
-            line_it--;
             std::vector<Symbol>::iterator index_it;
             index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
             if (*index_it == symbol) {
@@ -515,4 +530,20 @@ int SharedEditor::getBase() const {
 
 void SharedEditor::setCounter(int counter) {
     _counter = counter;
+}
+
+int SharedEditor::getLineCounter() const {
+    return _line_counter;
+}
+
+void SharedEditor::setLineCounter(int lineCounter) {
+    _line_counter = lineCounter;
+}
+
+uint64_t SharedEditor::getIdCounter() const {
+    return _id_counter;
+}
+
+void SharedEditor::setIdCounter(uint64_t idCounter) {
+    _id_counter = idCounter;
 }

@@ -20,10 +20,11 @@ private:
     int _siteId;
     std::vector<std::vector<Symbol>> _symbols;
     int _counter;
+    int _line_counter;
+    uint64_t _id_counter;
     std::map<int, bool> strategies;
     int base;
     int boundary;
-    uint64_t counter_id;
 
 public:
     void setCounter(int counter);
@@ -41,6 +42,14 @@ public:
     int getCounter() const;
 
     int getBase() const;
+
+    int getLineCounter() const;
+
+    void setLineCounter(int lineCounter);
+
+    uint64_t getIdCounter() const;
+
+    void setIdCounter(uint64_t idCounter);
 
     int generateIdBetween(int n1, int n2, bool strategy) const;
     std::vector<int> generatePosBetween(std::vector<int> pos1, std::vector<int> pos2, std::vector<int> newPos, int level);
