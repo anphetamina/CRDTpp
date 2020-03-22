@@ -13,6 +13,7 @@ static std::mt19937 generator(random_device());
 
 SharedEditor::SharedEditor(NetworkServer &server)
         : _server(server), _counter(0), base(32), boundary(10), _id_counter(0) {
+    _symbols.emplace_back();
     _siteId = server.connect(this);
 }
 
@@ -108,7 +109,7 @@ std::vector<int> SharedEditor::findPosBefore(Position pos) {
         throw std::out_of_range("index out of range");
     }
 
-    if (_symbols.empty()) {
+    if (_symbols[line].empty()) {
         return {0};
     }
 
@@ -143,7 +144,7 @@ std::vector<int> SharedEditor::findPosAfter(Position pos) {
         throw std::out_of_range("index out of range");
     }
 
-    if (_symbols.empty()) {
+    if (_symbols[line].empty()) {
         return {this->base};
     }
 
@@ -226,14 +227,14 @@ void SharedEditor::insertSymbol(Position pos, Symbol symbol) {
     int index = pos.index;
     char value = symbol.getC();
 
-    if (_symbols.empty()) {
-        _symbols.emplace_back();
-    } else if (index == _symbols[line].size() && _symbols[line].back().getC() == '\n') {
-        line++;
-        index = 0;
-        _symbols.emplace_back();
-    } else if (index > _symbols.size()) {
-        throw std::out_of_range("index greater than _symbols size");
+    if (!_symbols[line].empty()) {
+        if (index == _symbols[line].size() && _symbols[line].back().getC() == '\n') {
+            line++;
+            index = 0;
+            _symbols.emplace_back();
+        } else if (index > _symbols[line].size()) {
+            throw std::out_of_range("index greater than _symbols size");
+        }
     }
 
     if (value == '\n') {
@@ -375,6 +376,10 @@ void SharedEditor::localErase(Position startPos, Position endPos) {
         }
     }
 
+    if (_symbols.empty()) {
+        _symbols.emplace_back();
+    }
+
     for (Symbol sym : symbols) {
         Message m(DELETE, sym, _siteId);
         _server.send(m);
@@ -389,6 +394,12 @@ void SharedEditor::localErase(Position startPos, Position endPos) {
  * insert symbol right before the first one with the higher fractional position
  */
 void SharedEditor::remoteInsert(Symbol symbol) {
+
+    if (_symbols.front().empty()) {
+        insertSymbol(Position(0, 0), symbol);
+        return;
+    }
+
     std::vector<std::vector<Symbol>>::iterator line_it;
     line_it = std::lower_bound(_symbols.begin(), _symbols.end(), symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
         return it[0] < symbol;
@@ -422,10 +433,6 @@ void SharedEditor::remoteInsert(Symbol symbol) {
      * }
      */
 
-    if (_symbols.empty()) {
-        insertSymbol(Position(0, 0), symbol);
-        return;
-    }
 
     if (!(line_it == _symbols.end()) && (!(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition()))) {
         line_it--;
@@ -438,6 +445,7 @@ void SharedEditor::remoteInsert(Symbol symbol) {
     std::vector<Symbol>::iterator index_it;
     index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
     int index = index_it - line_it->begin();
+    // todo gestire symbol == '\n'
     if (index_it->getPosition() == symbol.getPosition()) {
         std::vector<int> sym_position;
         sym_position = generatePosBetween(symbol.getPosition(), index_it->getPosition(), sym_position, 0);
@@ -456,7 +464,7 @@ void SharedEditor::remoteInsert(Symbol symbol) {
  * remove symbol
  */
 void SharedEditor::remoteErase(Symbol symbol) {
-    if (!_symbols.empty()) {
+    if (!_symbols.front().empty()) {
         std::vector<std::vector<Symbol>>::iterator line_it;
         bool mergeLines = false;
         line_it = std::lower_bound(_symbols.begin(), _symbols.end(), symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
@@ -489,6 +497,10 @@ void SharedEditor::remoteErase(Symbol symbol) {
             line_it->insert(line_it->end(), (line_it + 1)->begin(), (line_it + 1)->end());
             _symbols.erase(line_it + 1);
         }
+
+        if (_symbols.empty()) {
+            _symbols.emplace_back();
+        }
     }
 }
 
@@ -515,7 +527,13 @@ void SharedEditor::process(const Message &m) {
 }
 
 std::string SharedEditor::to_string() {
-
+    std::string output{};
+    for (const auto& line : _symbols) {
+        for (const auto& symbol : line) {
+            output.push_back(symbol.getC());
+        }
+    }
+    return output;
 }
 
 void SharedEditor::setServer(NetworkServer &server) {
