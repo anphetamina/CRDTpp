@@ -20,7 +20,6 @@ private:
     int _siteId;
     std::vector<std::vector<Symbol>> _symbols;
     int _counter;
-    int _line_counter;
     uint64_t _id_counter;
     std::map<int, bool> strategies;
     int base;
@@ -42,10 +41,6 @@ public:
     int getCounter() const;
 
     int getBase() const;
-
-    int getLineCounter() const;
-
-    void setLineCounter(int lineCounter);
 
     uint64_t getIdCounter() const;
 
