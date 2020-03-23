@@ -1,7 +1,3 @@
-//
-// Created by asant on 12/05/2019.
-//
-
 #include <iostream>
 #include "src/NetworkServer.h"
 
