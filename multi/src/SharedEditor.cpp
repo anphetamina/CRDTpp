@@ -418,7 +418,25 @@ void SharedEditor::remoteInsert(Symbol symbol) {
     });
     int line = line_it - _symbols.begin();
 
-    if (!(line_it == _symbols.begin())) {
+    /*
+     * A = line_it = _symbols.begin()
+     * B = line_it->front().getPosition() == symbol.getPosition()
+     * C = line_it == last
+     *
+     * C A B
+     * 1 0 / -> 1
+     * 1 1 / -> 0
+     *
+     * 0 0 0 -> 1
+     * 0 0 1 -> 0
+     * 0 1 0 -> 0
+     * 0 1 1 -> 0
+     */
+
+    if (!(line_it == last) && !(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
+        line_it--;
+        line--;
+    } else if (line_it == last && !(line_it == _symbols.begin())) {
         line_it--;
         line--;
     }

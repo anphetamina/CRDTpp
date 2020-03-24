@@ -45,6 +45,8 @@ int main() {
     ed1.localInsert(Position(1, 4), 'o');
     ed1.localInsert(Position(1, 5), '\n');
 
+    ed2.localInsert(Position(1, 0), '\n');
+
     network.dispatchMessages();
     std::cout << "ed1" << std::endl;
     std::cout << ed1.to_string();
@@ -52,7 +54,7 @@ int main() {
     std::cout << ed2.to_string();
     std::cout << std::endl;
 
-    ed1.localErase(Position(1, 0), Position(1, 0));
+/*    ed1.localErase(Position(1, 0), Position(1, 0));
     ed2.localErase(Position(1, 1), Position(1, 1));
 
     std::cout << "ed1" << std::endl;
@@ -66,7 +68,7 @@ int main() {
     std::cout << ed1.to_string();
     std::cout << "ed2" << std::endl;
     std::cout << ed2.to_string();
-    std::cout << std::endl;
+    std::cout << std::endl;*/
 
     return 0;
 }
