@@ -477,42 +477,42 @@ void SharedEditor::remoteInsert(Symbol symbol) {
  */
 void SharedEditor::remoteErase(Symbol symbol) {
     if (!_symbols.front().empty()) {
-        std::vector<std::vector<Symbol>>::iterator line_it;
         bool mergeLines = false;
-        line_it = std::lower_bound(_symbols.begin(), _symbols.end(), symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
+        std::vector<std::vector<Symbol>>::iterator line_it;
+        std::vector<std::vector<Symbol>>::iterator last;
+        if (_symbols.back().empty()) {
+            last = _symbols.end()-1;
+        } else {
+            last = _symbols.end();
+        }
+        line_it = std::lower_bound(_symbols.begin(), last, symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
             return it[0] < symbol;
         });
         int line = line_it - _symbols.begin();
 
-        if (!(line_it == _symbols.end()) && (!(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition()))) {
-            line_it--;
-            line--;
-        } else if (!(line_it == _symbols.begin())) {
+        if (!(line_it == _symbols.begin())) {
             line_it--;
             line--;
         }
 
         std::vector<Symbol>::iterator index_it;
-        // todo change
-        index_it = std::find(line_it->begin(), line_it->end(), symbol);
-        if (!(*index_it == symbol)) {
-            line_it++;
-            line++;
+        do {
             index_it = std::find(line_it->begin(), line_it->end(), symbol);
-        }
+            if (index_it == line_it->end()) {
+                line_it++;
+                line++;
+            }
+        } while(!(*index_it == symbol));
         int index = index_it - line_it->begin();
+
         if (index_it->getC() == '\n') {
             mergeLines = true;
         }
         eraseSingleLine(Position(line, index), Position(line, index));
 
-        if (mergeLines && line < _symbols.size()-1) {
+        if (mergeLines) {
             line_it->insert(line_it->end(), (line_it + 1)->begin(), (line_it + 1)->end());
             _symbols.erase(line_it + 1);
-        }
-
-        if (_symbols.empty()) {
-            _symbols.emplace_back();
         }
     }
 }
