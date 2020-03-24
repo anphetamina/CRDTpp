@@ -424,8 +424,7 @@ void SharedEditor::remoteInsert(Symbol symbol) {
     }
 
     std::vector<Symbol>::iterator index_it;
-//    index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
-    index_it = std::upper_bound(line_it->begin(), line_it->end(), symbol);
+    index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
     int index = index_it - line_it->begin();
 
     /*
@@ -443,37 +442,30 @@ void SharedEditor::remoteInsert(Symbol symbol) {
      * 0 1 1 -> 0
      */
 
-    /*if (index_it == line_it->end() && !(index_it == line_it->begin())) {
+    if (index_it == line_it->end() && !(index_it == line_it->begin())) {
         index_it--;
     } else if (!(index_it == line_it->end()) && !(index_it == line_it->begin() || index_it->getPosition() == symbol.getPosition())) {
         index_it--;
-    }*/
-
-    if (index_it == line_it->end()) {
-        index_it--;
     }
 
-    /*if (index_it->getC() == '\n' && !_symbols.front().empty()) {
-        line++;
-        index = 0;
-    }*/
-
-    if (index_it->getC() == '\n' && index == line_it->size()) {
-        line++;
-        index = 0;
-    }
 
     if (index_it->getPosition() == symbol.getPosition()) {
-        std::vector<int> sym_position;
-        sym_position = generatePosBetween(symbol.getPosition(), index_it->getPosition(), sym_position, 0);
-        symbol.setPosition(sym_position);
         if (index_it->getC() == '\n') {
-            index--;
+            line++;
+            index = 0;
+        } else {
+            index++;
         }
-        insertSymbol(Position(line, index + 1), symbol);
-    } else {
-        insertSymbol(Position(line, index), symbol);
+        std::vector<int> sym_position;
+        std::vector<int> pos2 = findPosAfter(Position(line, index));
+        sym_position = generatePosBetween(symbol.getPosition(), pos2, sym_position, 0);
+        symbol.setPosition(sym_position);
+    } else if (index_it->getC() == '\n' && *index_it < symbol) {
+        line++;
+        index = 0;
     }
+
+    insertSymbol(Position(line, index), symbol);
 
     _id_counter--;
 }

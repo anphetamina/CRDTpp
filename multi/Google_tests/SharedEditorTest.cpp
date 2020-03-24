@@ -481,11 +481,26 @@ TEST_F(SharedEditorTest, remoteInsert) {
     ed1->remoteInsert(s1);
     EXPECT_EQ(ed1->getSymbols()[4][0], s1);
 
-    Symbol s2('y', "0_33", {26});
+    Symbol s11('t', "0_42", {27, 8, 9});
+    ed1->remoteInsert(s11);
+    EXPECT_EQ(ed1->getSymbols()[4][0], s11);
+    EXPECT_EQ(ed1->getSymbols()[4][1], s1);
+
+    Symbol s12('w', "0_43", {27, 8, 1});
+    ed1->remoteInsert(s12);
+    EXPECT_EQ(ed1->getSymbols()[3][8], s12);
+    EXPECT_EQ(ed1->getSymbols()[3][9], Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}));
+    EXPECT_EQ(ed1->getSymbols()[4][0], s11);
+    EXPECT_EQ(ed1->getSymbols()[4][1], s1);
+
+    Symbol s2('\n', "0_33", {26});
     ed1->remoteInsert(s2);
+    EXPECT_EQ(ed1->getSymbols().size(), 6);
     EXPECT_EQ(ed1->getSymbols()[3][6], Symbol(char('l'), std::string{"0_29"}, std::vector<int>{24, 6}));
     EXPECT_EQ(ed1->getSymbols()[3][7], s2);
-    EXPECT_EQ(ed1->getSymbols()[3][8], Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}));
+    EXPECT_EQ(ed1->getSymbols()[4][0], Symbol(char('e'), std::string{"0_30"}, std::vector<int>{27, 8}));
+    EXPECT_EQ(ed1->getSymbols()[4][1], s12);
+    EXPECT_EQ(ed1->getSymbols()[4][2], Symbol(char('\n'), std::string{"0_31"}, std::vector<int>{27, 8, 9}));
 
     Symbol s3('z', "0_34", {20});
     ed1->remoteInsert(s3);
@@ -494,12 +509,16 @@ TEST_F(SharedEditorTest, remoteInsert) {
 
     Symbol s4('k', "0_35", {19, 8, 2});
     ed1->remoteInsert(s4);
+    EXPECT_LT(ed1->getSymbols()[2][4], ed1->getSymbols()[2][5]);
+    EXPECT_LT(ed1->getSymbols()[2][5], ed1->getSymbols()[2][6]);
     EXPECT_EQ(ed1->getSymbols()[2][4], Symbol(char('o'), std::string{"0_21"}, std::vector<int>{19, 8, 2}));
     EXPECT_EQ(ed1->getSymbols()[2][5], s4);
     EXPECT_EQ(ed1->getSymbols()[2][6], Symbol(char('\n'), std::string{"0_22"}, std::vector<int>{19, 8, 2, 3}));
 
     Symbol s6('q', "0_37", {15, 8});
     ed1->remoteInsert(s6);
+    EXPECT_LT(ed1->getSymbols()[1][8], ed1->getSymbols()[2][0]);
+    EXPECT_LT(ed1->getSymbols()[2][0], ed1->getSymbols()[2][1]);
     EXPECT_EQ(ed1->getSymbols()[2][0], s6);
     EXPECT_EQ(ed1->getSymbols()[2][1], Symbol(char('m'), std::string{"0_17"}, std::vector<int>{16}));
 
