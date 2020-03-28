@@ -169,7 +169,7 @@ std::vector<Identifier> SharedEditor::generatePosBetween(std::vector<Identifier>
         newPos.emplace_back(newId, siteId);
         return newPos;
     } else if ((id2 - id1) == 1) {
-        newPos.emplace_back(id1, siteId);
+        newPos.emplace_back(id1, siteId1);
         try {
             return this->generatePosBetween(pos1, {}, newPos, level+1);
         } catch(...) {

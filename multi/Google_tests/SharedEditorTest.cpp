@@ -581,6 +581,19 @@ TEST_F(SharedEditorTest, remoteInsert) {
     EXPECT_EQ(ed1->getSymbols()[0][0], s10);
 }
 
+TEST_F(SharedEditorTest, remoteInsertBetweenConflicts) {
+    Symbol s2('x', "1-1", std::vector<Identifier>{Identifier(24, 0), Identifier(5, 0), Identifier(6, 1)});
+    ed1->remoteInsert(s2);
+    EXPECT_EQ(ed1->getSymbols()[3][4], *u1);
+    EXPECT_EQ(ed1->getSymbols()[3][5], s2);
+    EXPECT_EQ(ed1->getSymbols()[3][6], *e2);
+
+    Symbol s3('y', "1-2", std::vector<Identifier>{Identifier(24, 0), Identifier(5, 0), Identifier(6, 0), Identifier(4, 1)});
+    ed1->remoteInsert(s3);
+    EXPECT_EQ(ed1->getSymbols()[3][5], s3);
+    EXPECT_EQ(ed1->getSymbols()[3][6], s2);
+}
+
 TEST_F(SharedEditorTest, remoteErase) {
     ed1->remoteErase(*slash4);
     EXPECT_EQ(ed1->getSymbols()[3].size(), 8);
