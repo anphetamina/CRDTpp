@@ -5,9 +5,10 @@
 #include <iostream>
 #include "SharedEditor.h"
 #include "NetworkServer.h"
+#include "RandomGenerator.h"
 
 SharedEditor::SharedEditor(NetworkServer &server)
-        : server(server), counter(0), base(32), boundary(10), idCounter(0), generator(random_device()) {
+        : server(server), counter(0), base(32), boundary(10), idCounter(0) {
     symbols.emplace_back();
     siteId = server.connect(this);
 }
@@ -21,7 +22,7 @@ bool SharedEditor::retrieveStrategy(int level) {
     }
     bool strategy;
     std::uniform_int_distribution<int> distribution(1, 10);
-    int n = distribution(generator);
+    int n = distribution(RandomGenerator::getInstance()->getGenerator());
     strategy = n % 2 == 0;
     this->strategies.insert(std::pair<int,bool>(level, strategy));
     return strategy;
@@ -65,7 +66,7 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) {
         }
     }
     std::uniform_int_distribution<int> distribution(min, max);
-    return distribution(generator);
+    return distribution(RandomGenerator::getInstance()->getGenerator());
 }
 
 /**

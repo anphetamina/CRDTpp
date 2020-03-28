@@ -19,9 +19,6 @@ private:
     std::map<int, bool> strategies;
     int base;
     int boundary;
-    std::random_device random_device;
-    std::mt19937 generator;
-
 public:
     void setCounter(int counter);
 
