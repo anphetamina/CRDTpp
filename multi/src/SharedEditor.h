@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <random>
 #include "Symbol.h"
 #include "Message.h"
 
@@ -18,6 +19,7 @@ private:
     std::map<int, bool> strategies;
     int base;
     int boundary;
+    std::random_device random_device;
     std::mt19937 generator;
 
 public:
@@ -41,7 +43,7 @@ public:
 
     void setIdCounter(uint64_t idCounter);
 
-    int generateIdBetween(int n1, int n2, bool strategy) const;
+    int generateIdBetween(int n1, int n2, bool strategy);
     std::vector<Identifier> generatePosBetween(std::vector<Identifier> pos1, std::vector<Identifier> pos2, std::vector<Identifier> newPos, int level);
     bool retrieveStrategy(int level);
     std::vector<Identifier> findPosBefore(int line, int index);

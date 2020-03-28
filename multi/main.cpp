@@ -6,7 +6,7 @@ int main() {
     SharedEditor ed1(network);
     SharedEditor ed2(network);
 
-    ed1.localInsert(Position(0, 0), 'a');
+    /*ed1.localInsert(Position(0, 0), 'a');
     ed1.localInsert(Position(0, 1), 'n');
     ed1.localInsert(Position(0, 2), 't');
     ed1.localInsert(Position(0, 3), 'o');
@@ -52,7 +52,7 @@ int main() {
     std::cout << ed1.to_string();
     std::cout << "ed2" << std::endl;
     std::cout << ed2.to_string();
-    std::cout << std::endl;
+    std::cout << std::endl;*/
 
 /*    ed1.localErase(Position(1, 0), Position(1, 0));
     ed2.localErase(Position(1, 1), Position(1, 1));

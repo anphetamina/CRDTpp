@@ -1,19 +1,15 @@
 #define INSERT 1
 #define DELETE -1
 
-#include <exception>
 #include <algorithm>
-#include <random>
 #include <iostream>
 #include "SharedEditor.h"
 #include "NetworkServer.h"
 
 SharedEditor::SharedEditor(NetworkServer &server)
-        : server(server), counter(0), base(32), boundary(10), idCounter(0) {
+        : server(server), counter(0), base(32), boundary(10), idCounter(0), generator(random_device()) {
     symbols.emplace_back();
     siteId = server.connect(this);
-    std::random_device random_device;
-    generator.seed(random_device());
 }
 
 bool SharedEditor::retrieveStrategy(int level) {
@@ -24,7 +20,7 @@ bool SharedEditor::retrieveStrategy(int level) {
         return strategies.at(level);
     }
     bool strategy;
-    std::uniform_int_distribution<> distribution(1, 10);
+    std::uniform_int_distribution<int> distribution(1, 10);
     int n = distribution(generator);
     strategy = n % 2 == 0;
     this->strategies.insert(std::pair<int,bool>(level, strategy));
@@ -38,7 +34,7 @@ bool SharedEditor::retrieveStrategy(int level) {
  * @param strategy
  * @return random number in ]min, max[
  */
-int SharedEditor::generateIdBetween(int min, int max, bool strategy) const {
+int SharedEditor::generateIdBetween(int min, int max, bool strategy) {
 
     if (min < 0 && max < 0) {
         throw std::invalid_argument("min and max is negative");
@@ -68,7 +64,7 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) const {
             min = min + 1;
         }
     }
-    std::uniform_int_distribution<> distribution(min, max);
+    std::uniform_int_distribution<int> distribution(min, max);
     return distribution(generator);
 }
 
