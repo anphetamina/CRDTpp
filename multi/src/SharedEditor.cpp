@@ -254,7 +254,7 @@ void SharedEditor::insertSymbol(int line, int index, Symbol symbol) {
 void SharedEditor::localInsert(int line, int index, char value) {
 
     std::string sym_id = std::to_string(siteId);
-    sym_id.append("_");
+    sym_id.append("-");
     sym_id.append(std::to_string(idCounter));
     std::vector<Identifier> sym_position;
     std::vector<Identifier> pos1;
