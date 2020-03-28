@@ -4,7 +4,7 @@
 
 #include "RandomGenerator.h"
 
-RandomGenerator::RandomGenerator() : generator(std::random_device()()) {}
+RandomGenerator::RandomGenerator() : generator(time(0)) {}
 
 RandomGenerator *RandomGenerator::getInstance() {
     std::call_once(inited, [&]{
@@ -15,4 +15,9 @@ RandomGenerator *RandomGenerator::getInstance() {
 
 std::mt19937& RandomGenerator::getGenerator() {
     return generator;
+}
+
+RandomGenerator::~RandomGenerator() {
+    delete[] instance;
+    delete instance;
 }

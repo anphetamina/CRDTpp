@@ -19,6 +19,8 @@ private:
 public:
     static RandomGenerator* getInstance();
     std::mt19937& getGenerator();
+
+    ~RandomGenerator();
 };
 
 

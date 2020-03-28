@@ -140,7 +140,7 @@ TEST_F(SharedEditorTest, findPosAfter) {
 
 TEST_F(SharedEditorTest, generatePosBetween) {
     EXPECT_EQ(std::vector<Identifier>{Identifier(1, 0)}, ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0)}, std::vector<Identifier>{Identifier(2, 0)}, {}, 0));
-    EXPECT_EQ(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, std::vector<Identifier>{Identifier(1, 0), Identifier(7, 0)}, {}, 0)[1], Identifier(6, 0));
+    EXPECT_GT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, std::vector<Identifier>{Identifier(1, 0), Identifier(7, 0)}, {}, 0)[1].getDigit(), 5);
     EXPECT_GT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(2, 0), Identifier(5, 0), Identifier(5, 0)}, std::vector<Identifier>{Identifier(2, 0), Identifier(6, 0)}, {}, 0)[2].getDigit(), Identifier(5, 0).getDigit());
     EXPECT_LT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(5, 0), Identifier(4, 0)}, std::vector<Identifier>{Identifier(5, 0), Identifier(4, 0), Identifier(7, 0)}, {}, 0)[2], Identifier(7, 0));
     EXPECT_LT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(19, 0), Identifier(8, 0), Identifier(2, 0)}, std::vector<Identifier>{Identifier(19, 0), Identifier(8, 0), Identifier(2, 0), Identifier(3, 0)}, {}, 0)[3], Identifier(3, 0));
