@@ -8,29 +8,12 @@
 #include "SharedEditor.h"
 #include "NetworkServer.h"
 
-static std::random_device random_device;
-static std::mt19937 generator(random_device());
-
 SharedEditor::SharedEditor(NetworkServer &server)
-        : _server(server), _counter(0), base(32), boundary(10), _id_counter(0) {
-    _symbols.emplace_back();
-    _siteId = server.connect(this);
-}
-
-NetworkServer& SharedEditor::getServer() const {
-    return _server;
-}
-
-int SharedEditor::getSiteId() const {
-    return _siteId;
-}
-
-std::vector<std::vector<Symbol>>& SharedEditor::getSymbols() {
-    return _symbols;
-}
-
-int SharedEditor::getCounter() const {
-    return _counter;
+        : server(server), counter(0), base(32), boundary(10), idCounter(0) {
+    symbols.emplace_back();
+    siteId = server.connect(this);
+    std::random_device random_device;
+    generator.seed(random_device());
 }
 
 bool SharedEditor::retrieveStrategy(int level) {
@@ -94,30 +77,27 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) const {
  * @param index
  * @return the position of the next previous symbol from pos
  */
-std::vector<int> SharedEditor::findPosBefore(Position pos) {
-
-    int line = pos.line;
-    int index = pos.index;
+std::vector<Identifier> SharedEditor::findPosBefore(int line, int index) {
 
     if (line < 0) {
         throw std::out_of_range("line is negative");
-    } else if (line >= _symbols.size()) {
+    } else if (line >= symbols.size()) {
         throw std::out_of_range("line out of range");
     } else if (index < 0) {
         throw std::out_of_range("index is negative");
-    } else if (index > _symbols[line].size()) {
+    } else if (index > symbols[line].size()) {
         throw std::out_of_range("index out of range");
     }
 
 
     if (index == 0 && line == 0) {
-        return {0};
+        return {Identifier(0, siteId)};
     } else if (index == 0 && line != 0) {
         line = line - 1;
-        index = _symbols[line].size();
+        index = symbols[line].size();
     }
 
-    return _symbols[line].at(index-1).getPosition();
+    return symbols[line].at(index-1).getPosition();
 }
 
 /**
@@ -125,33 +105,31 @@ std::vector<int> SharedEditor::findPosBefore(Position pos) {
  * @param index
  * @return the position of the next following symbol from pos
  */
-std::vector<int> SharedEditor::findPosAfter(Position pos) {
+std::vector<Identifier> SharedEditor::findPosAfter(int line, int index) {
 
-    int line = pos.line;
-    int index = pos.index;
 
     if (line < 0) {
         throw std::out_of_range("line is negative");
-    } else if (line >= _symbols.size()) {
+    } else if (line >= symbols.size()) {
         throw std::out_of_range("line out of range");
     } else if (index < 0) {
         throw std::out_of_range("index is negative");
-    } else if (index > _symbols[line].size()) {
+    } else if (index > symbols[line].size()) {
         throw std::out_of_range("index out of range");
     }
 
-    int nLines = _symbols.size();
+    int nLines = symbols.size();
 
-    if (line == nLines - 1 && index == _symbols[nLines - 1].size()) {
-        return {this->base};
-    } else if (line < nLines - 1 && index == _symbols[line].size()) {
+    if (line == nLines - 1 && index == symbols[nLines - 1].size()) {
+        return {Identifier(base, siteId)};
+    } else if (line < nLines - 1 && index == symbols[line].size()) {
         line++;
         index = 0;
     } else if (line > nLines - 1 && index == 0) {
-        return {this->base};
+        return {Identifier(base, siteId)};
     }
 
-    return _symbols[line].at(index).getPosition();
+    return symbols[line].at(index).getPosition();
 }
 
 /**
@@ -162,7 +140,7 @@ std::vector<int> SharedEditor::findPosAfter(Position pos) {
  * @param level
  * @return fractional pos between pos1 and pos2
  */
-std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::vector<int> pos2, std::vector<int> newPos, int level) {
+std::vector<Identifier> SharedEditor::generatePosBetween(std::vector<Identifier> pos1, std::vector<Identifier> pos2, std::vector<Identifier> newPos, int level) {
     if (pos1.empty()) {
         throw std::invalid_argument("pos1 is empty");
     }
@@ -172,11 +150,15 @@ std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::ve
 
     int id1 = 0;
     int id2 = static_cast<int>(std::pow(2, level)*base);
+    int siteId1 = siteId;
+    int siteId2 = siteId;
     if (pos1.size() > level) {
-        id1 = pos1.at(level);
+        id1 = pos1.at(level).getDigit();
+        siteId1 = pos1.at(level).getSiteId();
     }
     if (!pos2.empty() && pos2.size() > level) {
-        id2 = pos2.at(level);
+        id2 = pos2.at(level).getDigit();
+        siteId2 = pos2.at(level).getSiteId();
     }
 
     bool boundaryStrategy = retrieveStrategy(level);
@@ -188,20 +170,27 @@ std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::ve
         } catch (std::exception& e) {
             throw;
         }
-        newPos.push_back(newId);
+        newPos.emplace_back(newId, siteId);
         return newPos;
     } else if ((id2 - id1) == 1) {
-        newPos.push_back(id1);
+        newPos.emplace_back(id1, siteId);
         try {
             return this->generatePosBetween(pos1, {}, newPos, level+1);
         } catch(...) {
             throw;
         }
     } else if (id1 == id2) {
-        newPos.push_back(id1);
         try {
-            return this->generatePosBetween(pos1, pos2, newPos, level+1);
-        } catch(...) {
+            if (siteId1 < siteId2) {
+                newPos.emplace_back(id1, siteId1);
+                return this->generatePosBetween(pos1, {}, newPos, level + 1);
+            } else if (siteId1 == siteId2) {
+                newPos.emplace_back(id1, siteId1);
+                return this->generatePosBetween(pos1, pos2, newPos, level + 1);
+            } else {
+                throw std::runtime_error("generatePosBetween position error");
+            }
+        } catch (...) {
             throw;
         }
     }
@@ -213,13 +202,11 @@ std::vector<int> SharedEditor::generatePosBetween(std::vector<int> pos1, std::ve
  * @param symbol
  * insert symbol at the given pos
  */
-void SharedEditor::insertSymbol(Position pos, Symbol symbol) {
+void SharedEditor::insertSymbol(int line, int index, Symbol symbol) {
 
-    int line = pos.line;
-    int index = pos.index;
     char value = symbol.getC();
 
-    if (index > _symbols[line].size()) {
+    if (index > symbols[line].size()) {
         throw std::out_of_range("index greater than _symbols size");
     }
 
@@ -227,27 +214,27 @@ void SharedEditor::insertSymbol(Position pos, Symbol symbol) {
 
         std::vector<Symbol> lineAfter;
 
-        if (index == _symbols[line].size()) {
+        if (index == symbols[line].size()) {
             lineAfter = {};
         } else {
-            lineAfter.assign(_symbols[line].begin() + index, _symbols[line].end());
+            lineAfter.assign(symbols[line].begin() + index, symbols[line].end());
         }
 
         if (lineAfter.empty()) {
-            _symbols[line].push_back(symbol);
-            _symbols.emplace_back();
+            symbols[line].push_back(symbol);
+            symbols.emplace_back();
         } else {
-            std::vector<Symbol> lineBefore(_symbols[line].begin(), _symbols[line].begin() + index);
+            std::vector<Symbol> lineBefore(symbols[line].begin(), symbols[line].begin() + index);
             lineBefore.push_back(symbol);
-            _symbols[line] = lineBefore;
-            _symbols.insert(_symbols.begin() + line + 1, lineAfter);
+            symbols[line] = lineBefore;
+            symbols.insert(symbols.begin() + line + 1, lineAfter);
         }
     } else {
-        _symbols[line].insert(_symbols[line].begin() + index, symbol);
+        symbols[line].insert(symbols[line].begin() + index, symbol);
     }
 
-    _counter++;
-    _id_counter++;
+    counter++;
+    idCounter++;
 }
 
 /**
@@ -264,36 +251,36 @@ void SharedEditor::insertSymbol(Position pos, Symbol symbol) {
  *
  * the insert in (0,5) is replaced with the insert in (1,0)
  */
-void SharedEditor::localInsert(Position pos, char value) {
+void SharedEditor::localInsert(int line, int index, char value) {
 
-    std::string sym_id = std::to_string(_siteId);
+    std::string sym_id = std::to_string(siteId);
     sym_id.append("_");
-    sym_id.append(std::to_string(_id_counter));
-    std::vector<int> sym_position;
-    std::vector<int> pos1;
-    std::vector<int> pos2;
+    sym_id.append(std::to_string(idCounter));
+    std::vector<Identifier> sym_position;
+    std::vector<Identifier> pos1;
+    std::vector<Identifier> pos2;
     Symbol sym(value, sym_id, {});
 
-    if (!_symbols[pos.line].empty()) {
-        if (pos.index >= _symbols[pos.line].size() && _symbols[pos.line].back().getC() == '\n') {
-            pos.line++;
-            pos.index = 0;
+    if (!symbols[line].empty()) {
+        if (index >= symbols[line].size() && symbols[line].back().getC() == '\n') {
+            line++;
+            index = 0;
         }
     }
 
     try {
-        pos1 = findPosBefore(pos);
-        pos2 = findPosAfter(pos);
+        pos1 = findPosBefore(line, index);
+        pos2 = findPosAfter(line, index);
         sym_position = generatePosBetween(pos1, pos2, sym_position, 0);
         sym.setPosition(sym_position);
-        insertSymbol(pos, sym);
+        insertSymbol(line, index, sym);
     } catch (std::exception& e) {
         std::cout << e.what() << ", localInsert failed" << std::endl;
         return;
     }
 
-    Message m(INSERT, sym, _siteId);
-    _server.send(m);
+    Message m(INSERT, sym, siteId);
+    server.send(m);
 }
 
 /**
@@ -302,16 +289,14 @@ void SharedEditor::localInsert(Position pos, char value) {
  * @param endPos
  * @return symbols erased from [startPos, endPos] in a single line
  */
-std::vector<Symbol> SharedEditor::eraseSingleLine(Position startPos, Position endPos) {
-    int startIndex = startPos.index;
-    int endIndex = endPos.index+1;
-    int line = startPos.line;
+std::vector<Symbol> SharedEditor::eraseSingleLine(int startLine, int startIndex, int endLine, int endIndex) {
+    endIndex++;
 
-    std::vector<Symbol> symbols(_symbols[line].begin() + startIndex, _symbols[line].begin() + endIndex);
-    _symbols[line].erase(_symbols[line].begin() + startIndex, _symbols[line].begin() + endIndex);
-    _counter -= (endIndex - startIndex);
+    std::vector<Symbol> erasedSymbols(symbols[startLine].begin() + startIndex, symbols[startLine].begin() + endIndex);
+    symbols[startLine].erase(symbols[startLine].begin() + startIndex, symbols[startLine].begin() + endIndex);
+    counter -= (endIndex - startIndex);
 
-    return symbols;
+    return erasedSymbols;
 }
 
 /**
@@ -320,25 +305,21 @@ std::vector<Symbol> SharedEditor::eraseSingleLine(Position startPos, Position en
  * @param endPos
  * @return symbols erased from [startPos, endPos] between multiple lines
  */
-std::vector<Symbol> SharedEditor::eraseMultipleLines(Position startPos, Position endPos) {
-    int startIndex = startPos.index;
-    int endIndex = endPos.index;
-    int startLine = startPos.line;
-    int endLine = endPos.line;
+std::vector<Symbol> SharedEditor::eraseMultipleLines(int startLine, int startIndex, int endLine, int endIndex) {
 
-    std::vector<Symbol> symbols(_symbols[startLine].begin() + startIndex, _symbols[startLine].end());
+    std::vector<Symbol> erasedSymbols(symbols[startLine].begin() + startIndex, symbols[startLine].end());
     for (int i = startLine+1; i < endLine; i++) {
-        symbols.insert(symbols.end(), _symbols[i].begin(), _symbols[i].end());
+        erasedSymbols.insert(erasedSymbols.end(), symbols[i].begin(), symbols[i].end());
     }
-    symbols.insert(symbols.end(), _symbols[endLine].begin(), _symbols[endLine].begin() + endIndex+1);
-    _symbols[startLine].erase(_symbols[startLine].begin() + startIndex, _symbols[startLine].end());
-    _symbols[endLine].erase(_symbols[endLine].begin(), _symbols[endLine].begin() + endIndex + 1);
+    erasedSymbols.insert(erasedSymbols.end(), symbols[endLine].begin(), symbols[endLine].begin() + endIndex+1);
+    symbols[startLine].erase(symbols[startLine].begin() + startIndex, symbols[startLine].end());
+    symbols[endLine].erase(symbols[endLine].begin(), symbols[endLine].begin() + endIndex + 1);
     if (endLine-startLine != 1) {
-        _symbols.erase(_symbols.begin() + startLine + 1, _symbols.begin() + endLine);
+        symbols.erase(symbols.begin() + startLine + 1, symbols.begin() + endLine);
     }
-    _counter -= symbols.size();
+    counter -= erasedSymbols.size();
 
-    return symbols;
+    return erasedSymbols;
 }
 
 /**
@@ -346,49 +327,44 @@ std::vector<Symbol> SharedEditor::eraseMultipleLines(Position startPos, Position
  * @param index
  * remove symbols from [startPos, endPos]
  */
-void SharedEditor::localErase(Position startPos, Position endPos) {
+void SharedEditor::localErase(int startLine, int startIndex, int endLine, int endIndex) {
 
-    int startLine = startPos.line;
-    int endLine = endPos.line;
-    int startIndex = startPos.index;
-    int endIndex = endPos.index;
-
-    std::vector<Symbol> symbols;
+    std::vector<Symbol> erasedSymbols;
     bool mergeLines = false;
-    if (_symbols[0].empty() || _symbols.size() <= startLine) {
+    if (symbols[0].empty() || symbols.size() <= startLine) {
         return;
     } else if (startLine != endLine) {
-        symbols = eraseMultipleLines(startPos, endPos);
-        if (_symbols[startLine + 1].empty()) {
-            _symbols.erase(_symbols.begin() + startLine + 1);
+        erasedSymbols = eraseMultipleLines(startLine, startIndex, endLine, endIndex);
+        if (symbols[startLine + 1].empty()) {
+            symbols.erase(symbols.begin() + startLine + 1);
         }
         mergeLines = true;
     } else {
-        symbols = eraseSingleLine(startPos, endPos);
-        if (symbols.back().getC() == '\n') {
-            if (_symbols[startLine + 1].empty()) {
-                _symbols.erase(_symbols.begin() + startLine + 1);
+        erasedSymbols = eraseSingleLine(startLine, startIndex, endLine, endIndex);
+        if (erasedSymbols.back().getC() == '\n') {
+            if (symbols[startLine + 1].empty()) {
+                symbols.erase(symbols.begin() + startLine + 1);
             } else {
                 mergeLines = true;
             }
         }
     }
 
-    if (mergeLines && !(_symbols[0].empty() && _symbols.size() == 1)) {
-        _symbols[startLine].insert(_symbols[startLine].end(), _symbols[startLine+1].begin(), _symbols[startLine+1].end());
-        _symbols.erase(_symbols.begin() + startLine+1);
-        if (_symbols[startLine].empty()) {
-            _symbols.erase(_symbols.begin() + startLine);
+    if (mergeLines && !(symbols[0].empty() && symbols.size() == 1)) {
+        symbols[startLine].insert(symbols[startLine].end(), symbols[startLine+1].begin(), symbols[startLine+1].end());
+        symbols.erase(symbols.begin() + startLine+1);
+        if (symbols[startLine].empty()) {
+            symbols.erase(symbols.begin() + startLine);
         }
     }
 
-    if (_symbols.empty()) {
-        _symbols.emplace_back();
+    if (symbols.empty()) {
+        symbols.emplace_back();
     }
 
-    for (Symbol sym : symbols) {
-        Message m(DELETE, sym, _siteId);
-        _server.send(m);
+    for (Symbol sym : erasedSymbols) {
+        Message m(DELETE, sym, siteId);
+        server.send(m);
     }
 
 }
@@ -401,91 +377,43 @@ void SharedEditor::localErase(Position startPos, Position endPos) {
  */
 void SharedEditor::remoteInsert(Symbol symbol) {
 
-    if (_symbols.front().empty()) {
-        insertSymbol(Position(0, 0), symbol);
+    if (symbols.front().empty()) {
+        insertSymbol(0, 0, symbol);
         return;
     }
 
     std::vector<std::vector<Symbol>>::iterator line_it;
     std::vector<std::vector<Symbol>>::iterator last;
-    if (_symbols.back().empty()) {
-        last = _symbols.end()-1;
+    if (symbols.back().empty()) {
+        last = symbols.end()-1;
     } else {
-        last = _symbols.end();
+        last = symbols.end();
     }
-    line_it = std::lower_bound(_symbols.begin(), last, symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
+    line_it = std::lower_bound(symbols.begin(), last, symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
         return it[0] < symbol;
     });
-    int line = line_it - _symbols.begin();
 
-    /*
-     * A = line_it = _symbols.begin()
-     * B = line_it->front().getPosition() == symbol.getPosition()
-     * C = line_it == last
-     *
-     * C A B
-     * 1 0 / -> 1
-     * 1 1 / -> 0
-     *
-     * 0 0 0 -> 1
-     * 0 0 1 -> 0
-     * 0 1 0 -> 0
-     * 0 1 1 -> 0
-     */
-
-    if (!(line_it == last) && !(line_it == _symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
+    if (!(line_it == symbols.begin())) {
         line_it--;
-        line--;
-    } else if (line_it == last && !(line_it == _symbols.begin())) {
-        line_it--;
-        line--;
     }
+    int line = line_it - symbols.begin();
 
     std::vector<Symbol>::iterator index_it;
     index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
+
     int index = index_it - line_it->begin();
-
-    /*
-     * A = index_it == line_it->begin()
-     * B = index_it->getPosition() == symbol.getPosition()
-     * C = index_it == line_it->end()
-     *
-     * C A B
-     * 1 0 / -> 1
-     * 1 1 / -> 0
-     *
-     * 0 0 0 -> 1
-     * 0 0 1 -> 0
-     * 0 1 0 -> 0
-     * 0 1 1 -> 0
-     */
-
-    if (index_it == line_it->end() && !(index_it == line_it->begin())) {
-        index_it--;
-    } else if (!(index_it == line_it->end()) && !(index_it == line_it->begin() || index_it->getPosition() == symbol.getPosition())) {
+    if (!(index_it == line_it->begin())) {
         index_it--;
     }
 
-
-    if (index_it->getPosition() == symbol.getPosition()) {
-        if (index_it->getC() == '\n') {
-            line++;
-            index = 0;
-        } else {
-            index++;
-        }
-        std::vector<int> sym_position;
-        std::vector<int> pos2 = findPosAfter(Position(line, index));
-        sym_position = generatePosBetween(symbol.getPosition(), pos2, sym_position, 0);
-        symbol.setPosition(sym_position);
-    } else if (index_it->getC() == '\n' && *index_it < symbol) {
+    if (index_it->getC() == '\n') {
         line++;
         index = 0;
     }
 
-    insertSymbol(Position(line, index), symbol);
+    insertSymbol(line, index, symbol);
 
-    _id_counter--;
+    idCounter--;
 }
 
 /**
@@ -494,43 +422,53 @@ void SharedEditor::remoteInsert(Symbol symbol) {
  * remove symbol
  */
 void SharedEditor::remoteErase(Symbol symbol) {
-    if (!_symbols.front().empty()) {
+    if (!symbols.front().empty()) {
         bool mergeLines = false;
         std::vector<std::vector<Symbol>>::iterator line_it;
         std::vector<std::vector<Symbol>>::iterator last;
-        if (_symbols.back().empty()) {
-            last = _symbols.end()-1;
+        if (symbols.back().empty()) {
+            last = symbols.end()-1;
         } else {
-            last = _symbols.end();
+            last = symbols.end();
         }
-        line_it = std::lower_bound(_symbols.begin(), last, symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
+        line_it = std::lower_bound(symbols.begin(), last, symbol, [](const std::vector<Symbol> & it, const Symbol& symbol){
             return it[0] < symbol;
         });
-        int line = line_it - _symbols.begin();
 
-        if (!(line_it == _symbols.begin())) {
+        /*
+         * A = line_it = _symbols.begin()
+         * B = line_it->front().getPosition() == symbol.getPosition()
+         * C = line_it == last
+         *
+         * C A B
+         * 1 0 / -> 1
+         * 1 1 / -> 0
+         *
+         * 0 0 0 -> 1
+         * 0 0 1 -> 0
+         * 0 1 0 -> 0
+         * 0 1 1 -> 0
+         */
+
+        if (!(line_it == last) && !(line_it == symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
             line_it--;
-            line--;
+        } else if (line_it == last && !(line_it == symbols.begin())) {
+            line_it--;
         }
+        int line = line_it - symbols.begin();
 
         std::vector<Symbol>::iterator index_it;
-        do {
-            index_it = std::find(line_it->begin(), line_it->end(), symbol);
-            if (index_it == line_it->end()) {
-                line_it++;
-                line++;
-            }
-        } while(!(*index_it == symbol));
+        index_it = std::find(line_it->begin(), line_it->end(), symbol);
         int index = index_it - line_it->begin();
 
         if (index_it->getC() == '\n') {
             mergeLines = true;
         }
-        eraseSingleLine(Position(line, index), Position(line, index));
+        eraseSingleLine(line, index, line, index);
 
         if (mergeLines) {
             line_it->insert(line_it->end(), (line_it + 1)->begin(), (line_it + 1)->end());
-            _symbols.erase(line_it + 1);
+            symbols.erase(line_it + 1);
         }
     }
 }
@@ -559,7 +497,7 @@ void SharedEditor::process(const Message &m) {
 
 std::string SharedEditor::to_string() {
     std::string output{};
-    for (const auto& line : _symbols) {
+    for (const auto& line : symbols) {
         for (const auto& symbol : line) {
             output.push_back(symbol.getC());
         }
@@ -568,7 +506,7 @@ std::string SharedEditor::to_string() {
 }
 
 void SharedEditor::setServer(NetworkServer &server) {
-    _server = server;
+    this->server = server;
 }
 
 int SharedEditor::getBase() const {
@@ -576,13 +514,29 @@ int SharedEditor::getBase() const {
 }
 
 void SharedEditor::setCounter(int counter) {
-    _counter = counter;
+    this->counter = counter;
 }
 
 uint64_t SharedEditor::getIdCounter() const {
-    return _id_counter;
+    return idCounter;
 }
 
 void SharedEditor::setIdCounter(uint64_t idCounter) {
-    _id_counter = idCounter;
+    this->idCounter = idCounter;
+}
+
+NetworkServer& SharedEditor::getServer() const {
+    return server;
+}
+
+int SharedEditor::getSiteId() const {
+    return siteId;
+}
+
+std::vector<std::vector<Symbol>>& SharedEditor::getSymbols() {
+    return symbols;
+}
+
+int SharedEditor::getCounter() const {
+    return counter;
 }

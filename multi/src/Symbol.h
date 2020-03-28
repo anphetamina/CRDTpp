@@ -4,14 +4,15 @@
 
 #include <string>
 #include <vector>
+#include "Identifier.h"
 
 class Symbol {
 private:
     char c;
     std::string id;
-    std::vector<int> position;
+    std::vector<Identifier> position;
 public:
-    Symbol(char c, std::string id, std::vector<int> position);
+    Symbol(char c, std::string id, std::vector<Identifier> position);
 
     char getC() const;
 
@@ -21,13 +22,12 @@ public:
 
     void setId(const std::string &id);
 
-    const std::vector<int> &getPosition() const;
+    const std::vector<Identifier> &getPosition() const;
 
-    void setPosition(const std::vector<int> &position);
+    void setPosition(const std::vector<Identifier> &position);
 
     bool operator==(const Symbol &symbol) const;
     bool operator<(const Symbol &symbol) const;
-    bool operator>(const Symbol &symbol) const;
 };
 
 

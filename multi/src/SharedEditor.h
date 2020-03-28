@@ -8,22 +8,17 @@
 
 class NetworkServer;
 
-typedef struct Position {
-    int line;
-    int index;
-    Position(int line, int index) : line(line), index(index){};
-} Position;
-
 class SharedEditor {
 private:
-    NetworkServer& _server;
-    int _siteId;
-    std::vector<std::vector<Symbol>> _symbols;
-    int _counter;
-    uint64_t _id_counter;
+    NetworkServer& server;
+    int siteId;
+    std::vector<std::vector<Symbol>> symbols;
+    int counter;
+    uint64_t idCounter;
     std::map<int, bool> strategies;
     int base;
     int boundary;
+    std::mt19937 generator;
 
 public:
     void setCounter(int counter);
@@ -47,15 +42,15 @@ public:
     void setIdCounter(uint64_t idCounter);
 
     int generateIdBetween(int n1, int n2, bool strategy) const;
-    std::vector<int> generatePosBetween(std::vector<int> pos1, std::vector<int> pos2, std::vector<int> newPos, int level);
+    std::vector<Identifier> generatePosBetween(std::vector<Identifier> pos1, std::vector<Identifier> pos2, std::vector<Identifier> newPos, int level);
     bool retrieveStrategy(int level);
-    std::vector<int> findPosBefore(Position pos);
-    std::vector<int> findPosAfter(Position pos);
-    void localInsert(Position pos, char value);
-    void insertSymbol(Position pos, Symbol symbol);
-    void localErase(Position startPos, Position endPos);
-    std::vector<Symbol> eraseSingleLine(Position startPos, Position endPos);
-    std::vector<Symbol> eraseMultipleLines(Position startPos, Position endPos);
+    std::vector<Identifier> findPosBefore(int line, int index);
+    std::vector<Identifier> findPosAfter(int line, int index);
+    void localInsert(int line, int index, char value);
+    void insertSymbol(int line, int index, Symbol symbol);
+    void localErase(int startLine, int startIndex, int endLine, int endIndex);
+    std::vector<Symbol> eraseSingleLine(int startLine, int startIndex, int endLine, int endIndex);
+    std::vector<Symbol> eraseMultipleLines(int startLine, int startIndex, int endLine, int endIndex);
     void process(const Message& m);
     void remoteInsert(Symbol symbol);
     void remoteErase(Symbol symbol);

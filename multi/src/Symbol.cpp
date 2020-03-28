@@ -1,6 +1,6 @@
 #include "Symbol.h"
 
-Symbol::Symbol(char c, const std::string id, const std::vector<int> position) : c(c), id(id), position(position) {}
+Symbol::Symbol(char c, const std::string id, const std::vector<Identifier> position) : c(c), id(id), position(position) {}
 
 char Symbol::getC() const {
     return c;
@@ -18,11 +18,11 @@ void Symbol::setId(const std::string &id) {
     Symbol::id = id;
 }
 
-const std::vector<int> &Symbol::getPosition() const {
+const std::vector<Identifier> &Symbol::getPosition() const {
     return position;
 }
 
-void Symbol::setPosition(const std::vector<int> &position) {
+void Symbol::setPosition(const std::vector<Identifier> &position) {
     Symbol::position = position;
 }
 
@@ -40,26 +40,9 @@ bool Symbol::operator<(const Symbol &symbol) const {
     for (int i = 0; i < min; i++) {
         if (this->position[i] < symbol.getPosition()[i]) {
             return true;
-        } else if (this->position[i] > symbol.getPosition()[i]) {
+        } else if (symbol.getPosition()[i] < this->position[i]) {
             return false;
         }
     }
     return this->position.size() < symbol.getPosition().size();
-}
-
-bool Symbol::operator>(const Symbol &symbol) const {
-    int min = 0;
-    if (this->position.size() < symbol.getPosition().size()) {
-        min = this->getPosition().size();
-    } else {
-        min = symbol.getPosition().size();
-    }
-    for (int i = 0; i < min; i++) {
-        if (this->position[i] < symbol.getPosition()[i]) {
-            return false;
-        } else if (this->position[i] > symbol.getPosition()[i]) {
-            return true;
-        }
-    }
-    return this->position.size() > symbol.getPosition().size();
 }
