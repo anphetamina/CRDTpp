@@ -110,11 +110,6 @@ TEST_F(SharedEditorTest, findPosBefore) {
     EXPECT_EQ(ed1->getSymbols()[0][6].getPosition(), ed1->findPosBefore(0, 7));
     EXPECT_EQ(ed1->getSymbols()[0].back().getPosition(), ed1->findPosBefore(1, 0));
 
-    EXPECT_THROW(ed1->findPosBefore(-1, 0), std::out_of_range);
-    EXPECT_THROW(ed1->findPosBefore(0, -1), std::out_of_range);
-    EXPECT_THROW(ed1->findPosBefore(5, 0), std::out_of_range);
-    EXPECT_THROW(ed1->findPosBefore(0, 10), std::out_of_range);
-
     ed1->getSymbols().clear();
     ed1->getSymbols().emplace_back();
     ed1->setCounter(0);
@@ -126,11 +121,7 @@ TEST_F(SharedEditorTest, findPosAfter) {
     EXPECT_EQ(ed1->getSymbols()[0][0].getPosition(), ed1->findPosAfter(0, 0));
     EXPECT_EQ(ed1->getSymbols()[1][5].getPosition(), ed1->findPosAfter(1, 5));
     EXPECT_EQ(ed1->getSymbols()[0][7].getPosition(), ed1->findPosAfter(0, 7));
-
-    EXPECT_THROW(ed1->findPosAfter(-1, 0), std::out_of_range);
-    EXPECT_THROW(ed1->findPosAfter(0, -1), std::out_of_range);
-    EXPECT_THROW(ed1->findPosAfter(5, 0), std::out_of_range);
-    EXPECT_THROW(ed1->findPosAfter(0, 10), std::out_of_range);
+    EXPECT_EQ(ed1->getSymbols()[1][0].getPosition(), ed1->findPosAfter(0, 8));
 
     ed1->getSymbols().clear();
     ed1->getSymbols().emplace_back();
@@ -150,8 +141,17 @@ TEST_F(SharedEditorTest, generatePosBetween) {
     EXPECT_THROW(ed1->generatePosBetween(std::vector<Identifier>{Identifier(1, 0)}, std::vector<Identifier>{Identifier(2, 0)}, {}, -1), std::invalid_argument);
 }
 
-TEST_F(SharedEditorTest, insertSymbolNotCRLF) {
+TEST_F(SharedEditorTest, generatePosBetweenConflicts) {
+    ed1->setSiteId(1);
+    EXPECT_EQ(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 1)}, std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, {}, 0)[0], Identifier(0, 0));
+    EXPECT_LT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 1)}, std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, {}, 0)[1], Identifier(5, 0));
 
+    ed1->setSiteId(0);
+    EXPECT_EQ(ed1->generatePosBetween(std::vector<Identifier>{Identifier(31, 1), Identifier(5, 1)}, std::vector<Identifier>{Identifier(32, 0)}, {}, 0)[0], Identifier(31, 1));
+    EXPECT_LT(Identifier(5, 1), ed1->generatePosBetween(std::vector<Identifier>{Identifier(31, 1), Identifier(5, 1)}, std::vector<Identifier>{Identifier(32, 0)}, {}, 0)[1]);
+}
+
+TEST_F(SharedEditorTest, insertSymbolNotCRLF) {
 
     Symbol s5('x', "0-32", std::vector<Identifier>{Identifier(28, 0)});
     ed1->insertSymbol(4, 0, s5);
@@ -313,6 +313,9 @@ TEST_F(SharedEditorTest, insertSymbolCRLF) {
 }
 
 TEST_F(SharedEditorTest, localInsertNotCRLF) {
+
+    EXPECT_THROW(ed1->localInsert(-1, 0, 'x'), std::out_of_range);
+
     ed1->localInsert(3, 9, 'x');
     EXPECT_EQ('x', ed1->getSymbols()[4][0].getC());
     EXPECT_EQ('\n', ed1->getSymbols()[3][8].getC());

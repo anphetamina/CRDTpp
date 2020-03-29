@@ -30,6 +30,8 @@ public:
 
     int getSiteId() const;
 
+    void setSiteId(int siteId);
+
     std::vector<std::vector<Symbol>>& getSymbols();
 
     int getCounter() const;

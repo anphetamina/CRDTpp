@@ -64,7 +64,7 @@ int main() {
     std::cout << "-------------" << std::endl;
 
     ed1.localErase(1, 0, 1, 0);
-    ed2.localErase(1, 1, 1, 1);
+    ed2.localErase(1, 0, 1, 0);
 
     std::cout << "ed1" << std::endl;
     std::cout << ed1.to_string();
@@ -79,6 +79,5 @@ int main() {
     std::cout << "ed2" << std::endl;
     std::cout << ed2.to_string();
     std::cout << "-------------" << std::endl;
-
     return 0;
 }
