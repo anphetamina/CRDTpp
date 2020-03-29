@@ -59,10 +59,10 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) {
         max = max - 1;
     } else {
         if (!strategy) { // boundary-
-            min = max - boundary;
+            min = max - boundary + 1;
             max = max - 1;
         } else { // boundary+
-            max = min + boundary;
+            max = min + boundary - 1;
             min = min + 1;
         }
     }
@@ -78,7 +78,7 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) {
 std::vector<Identifier> SharedEditor::findPosBefore(int line, int index) {
 
     if (index == 0 && line == 0) {
-        return {Identifier(0, siteId)};
+        return std::vector<Identifier>{Identifier(0, siteId)};
     } else if (index == 0 && line != 0) {
         line = line - 1;
         index = symbols[line].size();
