@@ -90,9 +90,25 @@ protected:
 TEST_F(SharedEditorTest, generateIdBetween) {
     int n1 = 0;
     int n2 = 10;
-    int n = ed1->generateIdBetween(n1, n2, true);
-    EXPECT_GE(n, n1);
-    EXPECT_LT(n, n2);
+    int id1 = ed1->generateIdBetween(n1, n2, true);
+    EXPECT_GE(id1, n1);
+    EXPECT_LT(id1, n2);
+
+    int n3 = 20;
+    int n4 = 70;
+    int id2 = ed1->generateIdBetween(n3, n4, false);
+    EXPECT_GE(id2, n3);
+    EXPECT_LT(id2, n4);
+
+    int n5 = 2;
+    int n6 = 7;
+    int id3 = ed1->generateIdBetween(n5, n6, false);
+    EXPECT_GE(id3, n5);
+    EXPECT_LT(id3, n6);
+
+    EXPECT_EQ(3, ed1->generateIdBetween(2, 4, true));
+    EXPECT_EQ(3, ed1->generateIdBetween(2, 4, false));
+    EXPECT_EQ(2, ed1->generateIdBetween(1, 3, true));
 
     EXPECT_THROW(ed1->generateIdBetween(n2, n1, true), std::range_error);
     EXPECT_THROW(ed1->generateIdBetween(n1, n1, true), std::range_error);
@@ -100,7 +116,6 @@ TEST_F(SharedEditorTest, generateIdBetween) {
     EXPECT_THROW(ed1->generateIdBetween(n1, -2, true), std::invalid_argument);
     EXPECT_THROW(ed1->generateIdBetween(-1, -2, true), std::invalid_argument);
 
-    EXPECT_EQ(2, ed1->generateIdBetween(1, 3, true));
 }
 
 TEST_F(SharedEditorTest, findPosBefore) {

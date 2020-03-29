@@ -20,9 +20,13 @@ private:
     int base;
     int boundary;
 public:
-    void setCounter(int counter);
-
     SharedEditor(NetworkServer &server);
+
+    int getBoundary() const;
+
+    void setBoundary(int boundary);
+
+    void setCounter(int counter);
 
     NetworkServer &getServer() const;
 

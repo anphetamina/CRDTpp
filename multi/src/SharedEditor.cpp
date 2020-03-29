@@ -54,7 +54,9 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) {
         throw std::range_error("min is equal to max");
     }
 
-    if ((max - min) < boundary) {
+    if ((max - min) == 2) {
+        return min + 1;
+    } else if ((max - min) < boundary) {
         min = min + 1;
         max = max - 1;
     } else {
@@ -562,4 +564,12 @@ int SharedEditor::getCounter() const {
 
 void SharedEditor::setSiteId(int siteId) {
     SharedEditor::siteId = siteId;
+}
+
+int SharedEditor::getBoundary() const {
+    return boundary;
+}
+
+void SharedEditor::setBoundary(int boundary) {
+    SharedEditor::boundary = boundary;
 }
