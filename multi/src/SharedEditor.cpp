@@ -365,9 +365,6 @@ void SharedEditor::localErase(int startLine, int startIndex, int endLine, int en
     if (mergeLines && !(symbols[0].empty() && symbols.size() == 1)) {
         symbols[startLine].insert(symbols[startLine].end(), symbols[startLine+1].begin(), symbols[startLine+1].end());
         symbols.erase(symbols.begin() + startLine+1);
-        /*if (symbols[startLine].empty()) {
-            symbols.erase(symbols.begin() + startLine);
-        }*/
     }
 
     for (Symbol sym : erasedSymbols) {

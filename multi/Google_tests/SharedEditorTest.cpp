@@ -484,18 +484,52 @@ TEST_F(SharedEditorTest, eraseMultipleLinesBoundaries) {
 }
 
 TEST_F(SharedEditorTest, localEraseMultipleLineBoundaries) {
-    ed1->localErase(0, 0, 2, 5);
-    EXPECT_EQ(ed1->getSymbols().size(), 2);
-    EXPECT_EQ(*e1, ed1->getSymbols()[0][0]);
-    EXPECT_EQ(*m2, ed1->getSymbols()[0][1]);
-    EXPECT_EQ(*a4, ed1->getSymbols()[0][2]);
-    EXPECT_EQ(*n4, ed1->getSymbols()[0][3]);
-    EXPECT_EQ(*u1, ed1->getSymbols()[0][4]);
-    EXPECT_EQ(*e2, ed1->getSymbols()[0][5]);
-    EXPECT_EQ(*l1, ed1->getSymbols()[0][6]);
-    EXPECT_EQ(*e3, ed1->getSymbols()[0][7]);
-    EXPECT_EQ(*slash4, ed1->getSymbols()[0][8]);
-    EXPECT_TRUE(ed1->getSymbols()[1].empty());
+    ed1->getSymbols().clear();
+    ed1->getSymbols().emplace_back();
+    ed1->setCounter(0);
+    ed1->getSymbols()[0].push_back(*a1);
+    ed1->getSymbols()[0].push_back(*n1);
+    ed1->getSymbols()[0].push_back(*t1);
+    ed1->getSymbols()[0].push_back(*o1);
+    ed1->getSymbols()[0].push_back(*n2);
+    ed1->getSymbols()[0].push_back(*i1);
+    ed1->getSymbols()[0].push_back(*o2);
+    ed1->getSymbols()[0].push_back(*slash1);
+    ed1->getSymbols().emplace_back();
+    ed1->getSymbols()[1].push_back(*a2);
+    ed1->getSymbols()[1].push_back(*g1);
+    ed1->getSymbols()[1].push_back(*o3);
+    ed1->getSymbols()[1].push_back(*s1);
+    ed1->getSymbols()[1].push_back(*t2);
+    ed1->getSymbols()[1].push_back(*i2);
+    ed1->getSymbols()[1].push_back(*n3);
+    ed1->getSymbols()[1].push_back(*o4);
+    ed1->localErase(0, 0, 1, 7);
+    EXPECT_EQ(ed1->getSymbols().size(), 1);
+
+    ed1->getSymbols().clear();
+    ed1->getSymbols().emplace_back();
+    ed1->setCounter(0);
+    ed1->getSymbols()[0].push_back(*a1);
+    ed1->getSymbols()[0].push_back(*n1);
+    ed1->getSymbols()[0].push_back(*t1);
+    ed1->getSymbols()[0].push_back(*o1);
+    ed1->getSymbols()[0].push_back(*n2);
+    ed1->getSymbols()[0].push_back(*i1);
+    ed1->getSymbols()[0].push_back(*o2);
+    ed1->getSymbols()[0].push_back(*slash1);
+    ed1->getSymbols().emplace_back();
+    ed1->getSymbols()[1].push_back(*a2);
+    ed1->getSymbols()[1].push_back(*g1);
+    ed1->getSymbols()[1].push_back(*o3);
+    ed1->getSymbols()[1].push_back(*s1);
+    ed1->getSymbols()[1].push_back(*t2);
+    ed1->getSymbols()[1].push_back(*i2);
+    ed1->getSymbols()[1].push_back(*n3);
+    ed1->getSymbols()[1].push_back(*o4);
+    ed1->getSymbols()[1].push_back(*slash2);
+    ed1->localErase(0, 0, 1, 8);
+    EXPECT_EQ(ed1->getSymbols().size(), 1);
 }
 
 TEST_F(SharedEditorTest, localEraseSingleLine) {
@@ -735,6 +769,17 @@ TEST_F(SharedEditorTest, remoteErase) {
     ed1->setCounter(0);
     Symbol s10('\n', "1-41", std::vector<Identifier>{Identifier(30, 1)});
     ed1->remoteErase(s10);
+    EXPECT_EQ(ed1->getSymbols().size(), 1);
+
+    ed1->getSymbols()[0].push_back(s10);
+    ed1->setCounter(1);
+    ed1->getSymbols().emplace_back();
+    ed1->remoteErase(s10);
+    EXPECT_EQ(ed1->getSymbols().size(), 1);
+
+    ed1->getSymbols()[0].push_back(*a1);
+    ed1->setCounter(1);
+    ed1->remoteErase(*a1);
     EXPECT_EQ(ed1->getSymbols().size(), 1);
 }
 
