@@ -18,7 +18,7 @@ bool SharedEditor::retrieveStrategy(int level) {
     if (level < 0) {
         throw std::invalid_argument("level is negative");
     }
-    if (strategies.size() < level && level != 0) {
+    if (level < strategies.size() && level != 0) {
         return strategies.at(level);
     }
     bool strategy;
@@ -141,24 +141,16 @@ std::vector<Identifier> SharedEditor::generatePosBetween(std::vector<Identifier>
 
     bool boundaryStrategy = retrieveStrategy(level);
 
-    if ((id2 - id1) > 1) {
-        int newId = 0;
-        try {
+    try {
+        if ((id2 - id1) > 1) {
+            int newId = 0;
             newId = generateIdBetween(id1, id2, boundaryStrategy);
-        } catch (std::exception& e) {
-            throw;
-        }
-        newPos.emplace_back(newId, siteId);
-        return newPos;
-    } else if ((id2 - id1) == 1) {
-        newPos.emplace_back(id1, siteId1);
-        try {
+            newPos.emplace_back(newId, siteId);
+            return newPos;
+        } else if ((id2 - id1) == 1) {
+            newPos.emplace_back(id1, siteId1);
             return this->generatePosBetween(pos1, {}, newPos, level+1);
-        } catch(...) {
-            throw;
-        }
-    } else if (id1 == id2) {
-        try {
+        } else if (id1 == id2) {
             if (siteId1 < siteId2) {
                 newPos.emplace_back(id1, siteId1);
                 return this->generatePosBetween(pos1, {}, newPos, level + 1);
@@ -183,14 +175,15 @@ std::vector<Identifier> SharedEditor::generatePosBetween(std::vector<Identifier>
                 }
                 err << " }" << std::endl;
                 err << "level " << level << std::endl;*/
-                std::cout << "conflict" << std::endl;
                 newPos.emplace_back(id1, siteId2);
                 return this->generatePosBetween(pos1, pos2, newPos, level+1);
             }
-        } catch (...) {
-            throw;
         }
+    } catch (...) {
+        throw;
     }
+
+
 }
 
 /**
@@ -337,11 +330,15 @@ void SharedEditor::localErase(int startLine, int startIndex, int endLine, int en
     if (startLine < 0) {
         throw std::out_of_range("startLine "+std::to_string(startLine)+" is negative");
     } else if (endLine > symbols.size()) {
-        throw std::out_of_range("endLine "+std::to_string(endLine)+" > "+std::to_string(symbols.size()));
+        throw std::out_of_range("endLine "+std::to_string(endLine)+" > num of lines "+std::to_string(symbols.size()));
     } else if (startIndex < 0) {
         throw std::out_of_range("startIndex "+std::to_string(startIndex)+" is negative");
     } else if (endIndex > symbols[endLine].size()) {
-        throw std::out_of_range("endIndex "+std::to_string(endIndex)+" > "+std::to_string(symbols[endLine].size()));
+        throw std::out_of_range("endIndex "+std::to_string(endIndex)+" > num of symbols "+std::to_string(symbols[endLine].size())+" line "+std::to_string(endLine));
+    } else if (startLine > endLine) {
+        throw std::invalid_argument("startLine "+std::to_string(startLine)+" > endLine "+std::to_string(endLine));
+    } else if (startLine == endLine && startIndex > endIndex) {
+        throw std::invalid_argument("startIndex "+std::to_string(startLine)+" > endIndex "+std::to_string(endIndex));
     }
 
     std::vector<Symbol> erasedSymbols;
@@ -368,13 +365,9 @@ void SharedEditor::localErase(int startLine, int startIndex, int endLine, int en
     if (mergeLines && !(symbols[0].empty() && symbols.size() == 1)) {
         symbols[startLine].insert(symbols[startLine].end(), symbols[startLine+1].begin(), symbols[startLine+1].end());
         symbols.erase(symbols.begin() + startLine+1);
-        if (symbols[startLine].empty()) {
+        /*if (symbols[startLine].empty()) {
             symbols.erase(symbols.begin() + startLine);
-        }
-    }
-
-    if (symbols.empty()) {
-        symbols.emplace_back();
+        }*/
     }
 
     for (Symbol sym : erasedSymbols) {
@@ -390,7 +383,6 @@ void SharedEditor::localErase(int startLine, int startIndex, int endLine, int en
  * @param symbol
  * insert symbol right before the first one with the higher fractional position
  */
- // todo idempotenza
 void SharedEditor::remoteInsert(Symbol symbol) {
 
     if (symbols.front().empty()) {
@@ -409,27 +401,52 @@ void SharedEditor::remoteInsert(Symbol symbol) {
         return it[0] < symbol;
     });
 
-    if (!(line_it == symbols.begin())) {
+    if (!(line_it == last) && !(line_it == symbols.begin() || line_it->front().getPosition() == symbol.getPosition())) {
+        line_it--;
+    } else if (line_it == last && !(line_it == symbols.begin())) {
         line_it--;
     }
     int line = line_it - symbols.begin();
 
-    std::vector<Symbol>::iterator index_it;
-    index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
+    if (*line_it->begin() == symbol) {
+        if (symbol.getC() == '\n') {
+            std::cout << "remoteInsert symbol 'CRLF' ("+symbol.getId()+") already exists" << std::endl;
+        } else {
+            std::cout << "remoteInsert symbol '"+ std::string(1, symbol.getC()) +"' ("+symbol.getId()+") already exists" << std::endl;
+        }
 
-    int index = index_it - line_it->begin();
-    if (!(index_it == line_it->begin())) {
-        index_it--;
+    } else {
+        std::vector<Symbol>::iterator index_it;
+        index_it = std::lower_bound(line_it->begin(), line_it->end(), symbol);
+        int index = index_it - line_it->begin();
+
+        if (!(index_it == line_it->end()) && !(index_it == line_it->begin() || index_it->getPosition() == symbol.getPosition())) {
+            index_it--;
+        } else if (index_it == line_it->end() && !(index_it == line_it->begin())) {
+            index_it--;
+        }
+
+        if (*index_it == symbol) {
+            if (symbol.getC() == '\n') {
+                std::cout << "remoteInsert symbol 'CRLF' ("+symbol.getId()+") already exists" << std::endl;
+            } else {
+                std::cout << "remoteInsert symbol '"+ std::string(1, symbol.getC()) +"' ("+symbol.getId()+") already exists" << std::endl;
+            }
+        } else {
+            if (index_it->getC() == '\n') {
+                line++;
+                index = 0;
+            }
+
+            insertSymbol(line, index, symbol);
+
+            idCounter--;
+        }
+
+
     }
 
-    if (index_it->getC() == '\n') {
-        line++;
-        index = 0;
-    }
 
-    insertSymbol(line, index, symbol);
-
-    idCounter--;
 }
 
 /**
@@ -452,7 +469,7 @@ void SharedEditor::remoteErase(Symbol symbol) {
         });
 
         /*
-         * A = line_it = _symbols.begin()
+         * A = line_it = symbols.begin()
          * B = line_it->front().getPosition() == symbol.getPosition()
          * C = line_it == last
          *
@@ -477,7 +494,11 @@ void SharedEditor::remoteErase(Symbol symbol) {
         index_it = std::find(line_it->begin(), line_it->end(), symbol);
 
         if (index_it == line_it->end()) {
-            std::cout << "remoteErase symbol not found" << std::endl;
+            if (symbol.getC() == '\n') {
+                std::cout << "remoteInsert symbol 'CRLF' ("+symbol.getId()+") not found" << std::endl;
+            } else {
+                std::cout << "remoteInsert symbol '"+ std::string(1, symbol.getC()) +"' ("+symbol.getId()+") not found" << std::endl;
+            }
         } else {
             int index = index_it - line_it->begin();
 

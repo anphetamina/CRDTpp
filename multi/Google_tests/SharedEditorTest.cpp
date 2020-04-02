@@ -145,7 +145,24 @@ TEST_F(SharedEditorTest, findPosAfter) {
 }
 
 TEST_F(SharedEditorTest, generatePosBetween) {
-    EXPECT_EQ(std::vector<Identifier>{Identifier(1, 0)}, ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0)}, std::vector<Identifier>{Identifier(2, 0)}, {}, 0));
+    std::function<bool(std::vector<Identifier>, std::vector<Identifier>)> isLessThan = [](std::vector<Identifier> pos1, std::vector<Identifier> pos2){
+        int min = 0;
+        if (pos1.size() < pos2.size()) {
+            min = pos1.size();
+        } else {
+            min = pos2.size();
+        }
+        for (int i = 0; i < min; i++) {
+            if (pos1[i] < pos2[i]) {
+                return true;
+            } else if (pos2[i] < pos1[i]) {
+                return false;
+            }
+        }
+        return pos1.size() < pos2.size();
+    };
+
+    EXPECT_EQ(Identifier(1, 0), ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0)}, std::vector<Identifier>{Identifier(2, 0)}, {}, 0)[0]);
     EXPECT_GT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, std::vector<Identifier>{Identifier(1, 0), Identifier(7, 0)}, {}, 0)[1].getDigit(), 5);
     EXPECT_GT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(2, 0), Identifier(5, 0), Identifier(5, 0)}, std::vector<Identifier>{Identifier(2, 0), Identifier(6, 0)}, {}, 0)[2].getDigit(), Identifier(5, 0).getDigit());
     EXPECT_LT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(5, 0), Identifier(4, 0)}, std::vector<Identifier>{Identifier(5, 0), Identifier(4, 0), Identifier(7, 0)}, {}, 0)[2], Identifier(7, 0));
@@ -154,16 +171,19 @@ TEST_F(SharedEditorTest, generatePosBetween) {
 
     EXPECT_THROW(ed1->generatePosBetween({}, std::vector<Identifier>{Identifier(2, 0)}, {}, 0), std::invalid_argument);
     EXPECT_THROW(ed1->generatePosBetween(std::vector<Identifier>{Identifier(1, 0)}, std::vector<Identifier>{Identifier(2, 0)}, {}, -1), std::invalid_argument);
-}
-
-TEST_F(SharedEditorTest, generatePosBetweenConflicts) {
     ed1->setSiteId(1);
     EXPECT_EQ(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 1)}, std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, {}, 0)[0], Identifier(0, 0));
     EXPECT_LT(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 1)}, std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, {}, 0)[1], Identifier(5, 0));
+    EXPECT_TRUE(isLessThan(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 1)}, std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}, {}, 0), std::vector<Identifier>{Identifier(0, 0), Identifier(5, 0)}));
 
     ed1->setSiteId(0);
     EXPECT_EQ(ed1->generatePosBetween(std::vector<Identifier>{Identifier(31, 1), Identifier(5, 1)}, std::vector<Identifier>{Identifier(32, 0)}, {}, 0)[0], Identifier(31, 1));
     EXPECT_LT(Identifier(5, 1), ed1->generatePosBetween(std::vector<Identifier>{Identifier(31, 1), Identifier(5, 1)}, std::vector<Identifier>{Identifier(32, 0)}, {}, 0)[1]);
+    EXPECT_TRUE(isLessThan(ed1->generatePosBetween(std::vector<Identifier>{Identifier(31, 1), Identifier(5, 1)}, std::vector<Identifier>{Identifier(32, 0)}, {}, 0), std::vector<Identifier>{Identifier(32, 0)}));
+
+    EXPECT_EQ(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0)}, std::vector<Identifier>{Identifier(0, 1), Identifier(5, 1)}, {}, 0)[0], Identifier(0, 0));
+    EXPECT_TRUE(isLessThan(ed1->generatePosBetween(std::vector<Identifier>{Identifier(0, 0)}, std::vector<Identifier>{Identifier(0, 1), Identifier(5, 1)}, {}, 0), std::vector<Identifier>{Identifier(0, 1), Identifier(5, 1)}));
+    EXPECT_TRUE(!isLessThan(std::vector<Identifier>{Identifier(8, 0)}, std::vector<Identifier>{Identifier(0, 1), Identifier(5, 1)}));
 }
 
 TEST_F(SharedEditorTest, insertSymbolNotCRLF) {
@@ -330,6 +350,9 @@ TEST_F(SharedEditorTest, insertSymbolCRLF) {
 TEST_F(SharedEditorTest, localInsertNotCRLF) {
 
     EXPECT_THROW(ed1->localInsert(-1, 0, 'x'), std::out_of_range);
+    EXPECT_THROW(ed1->localInsert(20, 0, 'x'), std::out_of_range);
+    EXPECT_THROW(ed1->localInsert(0, -1, 'x'), std::out_of_range);
+    EXPECT_THROW(ed1->localInsert(0, 90, 'x'), std::out_of_range);
 
     ed1->localInsert(3, 9, 'x');
     EXPECT_EQ('x', ed1->getSymbols()[4][0].getC());
@@ -421,6 +444,15 @@ TEST_F(SharedEditorTest, eraseSingleLine) {
     EXPECT_EQ(*i1, ed1->getSymbols()[0][4]);
     EXPECT_EQ(*o2, ed1->getSymbols()[0][5]);
     EXPECT_EQ(*slash1, ed1->getSymbols()[0][6]);
+
+    ed1->eraseSingleLine(0, 0, 0, 0);
+    EXPECT_EQ(ed1->getSymbols().size(), 5);
+    EXPECT_EQ(*n1, ed1->getSymbols()[0][0]);
+    EXPECT_EQ(*t1, ed1->getSymbols()[0][1]);
+    EXPECT_EQ(*n2, ed1->getSymbols()[0][2]);
+    EXPECT_EQ(*i1, ed1->getSymbols()[0][3]);
+    EXPECT_EQ(*o2, ed1->getSymbols()[0][4]);
+    EXPECT_EQ(*slash1, ed1->getSymbols()[0][5]);
 }
 
 TEST_F(SharedEditorTest, eraseMultipleLines) {
@@ -442,7 +474,38 @@ TEST_F(SharedEditorTest, eraseMultipleLines) {
     EXPECT_EQ(*slash4, ed1->getSymbols()[2][2]);
 }
 
+TEST_F(SharedEditorTest, eraseMultipleLinesBoundaries) {
+    ed1->eraseMultipleLines(2, 3, 3, 8);
+    EXPECT_EQ(ed1->getSymbols().size(), 5);
+    EXPECT_EQ(*m1, ed1->getSymbols()[2][0]);
+    EXPECT_EQ(*a3, ed1->getSymbols()[2][1]);
+    EXPECT_EQ(*r1, ed1->getSymbols()[2][2]);
+
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLineBoundaries) {
+    ed1->localErase(0, 0, 2, 5);
+    EXPECT_EQ(ed1->getSymbols().size(), 2);
+    EXPECT_EQ(*e1, ed1->getSymbols()[0][0]);
+    EXPECT_EQ(*m2, ed1->getSymbols()[0][1]);
+    EXPECT_EQ(*a4, ed1->getSymbols()[0][2]);
+    EXPECT_EQ(*n4, ed1->getSymbols()[0][3]);
+    EXPECT_EQ(*u1, ed1->getSymbols()[0][4]);
+    EXPECT_EQ(*e2, ed1->getSymbols()[0][5]);
+    EXPECT_EQ(*l1, ed1->getSymbols()[0][6]);
+    EXPECT_EQ(*e3, ed1->getSymbols()[0][7]);
+    EXPECT_EQ(*slash4, ed1->getSymbols()[0][8]);
+    EXPECT_TRUE(ed1->getSymbols()[1].empty());
+}
+
 TEST_F(SharedEditorTest, localEraseSingleLine) {
+
+    EXPECT_THROW(ed1->localErase(10, 0, 0, 0), std::invalid_argument);
+    EXPECT_THROW(ed1->localErase(0, 2, 0, 1), std::invalid_argument);
+    EXPECT_THROW(ed1->localErase(-1, 2, 0, 1), std::out_of_range);
+    EXPECT_THROW(ed1->localErase(0, -1, 0, 1), std::out_of_range);
+
+
     ed1->localErase(3, 0, 3, 8);
     EXPECT_EQ(ed1->getSymbols().size(), 4);
 
@@ -482,6 +545,10 @@ TEST_F(SharedEditorTest, localEraseSingleLine) {
 
     ed1->localErase(0, 0, 0, 13);
     EXPECT_EQ(ed1->getSymbols().size(), 1);
+
+    ed1->localErase(0, 0, 0, 0);
+    EXPECT_EQ(ed1->getSymbols().size(), 1);
+    EXPECT_TRUE(ed1->getSymbols()[0].empty());
 }
 
 TEST_F(SharedEditorTest, localEraseMultipleLine) {
@@ -538,6 +605,19 @@ TEST_F(SharedEditorTest, remoteInsert) {
     EXPECT_EQ(ed1->getSymbols()[4][0], s11);
     EXPECT_EQ(ed1->getSymbols()[4][1], s13);
 
+    int numLines = ed1->getSymbols().size();
+    int numSymbolsInLine3 = ed1->getSymbols()[3].size();
+    int numSymbolsInLine4 = ed1->getSymbols()[4].size();
+    ed1->remoteInsert(s12);
+    EXPECT_EQ(ed1->getSymbols()[3][8], s12);
+    EXPECT_EQ(ed1->getSymbols()[3][9], *slash4);
+    EXPECT_EQ(ed1->getSymbols()[4][0], s11);
+    EXPECT_EQ(ed1->getSymbols()[4][1], s13);
+    EXPECT_EQ(ed1->getSymbols().size(), numLines);
+    EXPECT_EQ(ed1->getSymbols()[3].size(), numSymbolsInLine3);
+    EXPECT_EQ(ed1->getSymbols()[4].size(), numSymbolsInLine4);
+
+
     Symbol s2('\n', "1-4", std::vector<Identifier>{Identifier(26, 1)});
     ed1->remoteInsert(s2);
     EXPECT_EQ(ed1->getSymbols().size(), 6);
@@ -582,6 +662,14 @@ TEST_F(SharedEditorTest, remoteInsert) {
     EXPECT_EQ(ed1->getSymbols()[0][0], s8);
     EXPECT_EQ(ed1->getSymbols()[0][1], s5);
 
+    int numLines2 = ed1->getSymbols().size();
+    int numSymbolsInLine0 = ed1->getSymbols()[0].size();
+    ed1->remoteInsert(s8);
+    EXPECT_EQ(ed1->getSymbols()[0][0], s8);
+    EXPECT_EQ(ed1->getSymbols()[0][1], s5);
+    EXPECT_EQ(ed1->getSymbols().size(), numLines2);
+    EXPECT_EQ(ed1->getSymbols()[0].size(), numSymbolsInLine0);
+
     ed1->getSymbols().clear();
     ed1->getSymbols().emplace_back();
     ed1->setCounter(0);
@@ -616,6 +704,11 @@ TEST_F(SharedEditorTest, remoteErase) {
     ed1->remoteErase(*slash4);
     EXPECT_EQ(ed1->getSymbols()[3].size(), 8);
     EXPECT_EQ(ed1->getSymbols()[3][7], *e3);
+
+    ed1->remoteErase(*u1);
+    EXPECT_EQ(ed1->getSymbols()[3].size(), 7);
+    EXPECT_EQ(ed1->getSymbols()[3][3], *n4);
+    EXPECT_EQ(ed1->getSymbols()[3][4], *e2);
 
     ed1->remoteErase(*u1);
     EXPECT_EQ(ed1->getSymbols()[3].size(), 7);
