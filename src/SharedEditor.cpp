@@ -14,6 +14,11 @@ SharedEditor::SharedEditor(NetworkServer &server)
     siteId = server.connect(this);
 }
 
+/**
+ *
+ * @param level
+ * @return the strategy of level
+ */
 bool SharedEditor::retrieveStrategy(int level) {
     if (level < 0) {
         throw std::invalid_argument("level is negative");
@@ -75,8 +80,9 @@ int SharedEditor::generateIdBetween(int min, int max, bool strategy) {
 
 /**
  *
+ * @param line
  * @param index
- * @return the position of the next previous symbol from pos
+ * @return the previous fractional position from line and index
  */
 std::vector<Identifier> SharedEditor::findPosBefore(int line, int index) {
 
@@ -92,8 +98,9 @@ std::vector<Identifier> SharedEditor::findPosBefore(int line, int index) {
 
 /**
  *
+ * @param line
  * @param index
- * @return the position of the next following symbol from pos
+ * @return the next fractional position from line and index
  */
 std::vector<Identifier> SharedEditor::findPosAfter(int line, int index) {
 
@@ -188,10 +195,10 @@ std::vector<Identifier> SharedEditor::generatePosBetween(std::vector<Identifier>
 }
 
 /**
- *
- * @param pos
+ * insert symbol at line in index
+ * @param line
+ * @param index
  * @param symbol
- * insert symbol at the given pos
  */
 void SharedEditor::insertSymbol(int line, int index, Symbol symbol) {
 
@@ -284,9 +291,12 @@ void SharedEditor::localInsert(int line, int index, char value) {
 
 /**
  *
- * @param startPos
- * @param endPos
- * @return symbols erased from [startPos, endPos] in a single line
+ *
+ * @param startLine
+ * @param startIndex
+ * @param endLine
+ * @param endIndex
+ * @return erased symbols in [startIndex, endIndex]
  */
 std::vector<Symbol> SharedEditor::eraseSingleLine(int startLine, int startIndex, int endLine, int endIndex) {
     endIndex++;
@@ -300,9 +310,11 @@ std::vector<Symbol> SharedEditor::eraseSingleLine(int startLine, int startIndex,
 
 /**
  *
- * @param startPos
- * @param endPos
- * @return symbols erased from [startPos, endPos] between multiple lines
+ * @param startLine
+ * @param startIndex
+ * @param endLine
+ * @param endIndex
+ * @return erased symbols in [startIndex, endIndex] from [startLine, endLine]
  */
 std::vector<Symbol> SharedEditor::eraseMultipleLines(int startLine, int startIndex, int endLine, int endIndex) {
 
@@ -322,9 +334,11 @@ std::vector<Symbol> SharedEditor::eraseMultipleLines(int startLine, int startInd
 }
 
 /**
- *
- * @param index
- * remove symbols from [startPos, endPos]
+ * erase symbols in [startIndex, endIndex] from [startLine, endLine]
+ * @param startLine
+ * @param startIndex
+ * @param endLine
+ * @param endIndex
  */
 void SharedEditor::localErase(int startLine, int startIndex, int endLine, int endIndex) {
 
