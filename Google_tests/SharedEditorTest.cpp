@@ -476,7 +476,7 @@ TEST_F(SharedEditorTest, eraseMultipleLines) {
 
 TEST_F(SharedEditorTest, eraseMultipleLinesBoundaries) {
     ed1->eraseMultipleLines(2, 3, 3, 8);
-    EXPECT_EQ(ed1->getSymbols().size(), 5);
+    EXPECT_EQ(ed1->getSymbols().size(), 4);
     EXPECT_EQ(*m1, ed1->getSymbols()[2][0]);
     EXPECT_EQ(*a3, ed1->getSymbols()[2][1]);
     EXPECT_EQ(*r1, ed1->getSymbols()[2][2]);
@@ -621,6 +621,15 @@ TEST_F(SharedEditorTest, localEraseMultipleLine) {
     ed1->localErase(0, 0, 1, 0);
     EXPECT_EQ(ed1->getSymbols().size(), 1);
 }
+
+TEST_F(SharedEditorTest, localEraseMultipleLineEditor) {
+    ed1->getSymbols().erase(ed1->getSymbols().end());
+    ed1->getSymbols().back().erase(ed1->getSymbols().back().end());
+
+    ed1->localErase(2, 0, 3, 7);
+    EXPECT_EQ(ed1->getSymbols().size(), 3);
+}
+
 
 TEST_F(SharedEditorTest, remoteInsert) {
     Symbol s13('x', "1-1", std::vector<Identifier>{Identifier(28, 1)});

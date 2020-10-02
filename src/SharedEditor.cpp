@@ -313,9 +313,15 @@ std::vector<Symbol> SharedEditor::eraseMultipleLines(int startLine, int startInd
     erasedSymbols.insert(erasedSymbols.end(), symbols[endLine].begin(), symbols[endLine].begin() + endIndex+1);
     symbols[startLine].erase(symbols[startLine].begin() + startIndex, symbols[startLine].end());
     symbols[endLine].erase(symbols[endLine].begin(), symbols[endLine].begin() + endIndex + 1);
+
     if (endLine-startLine != 1) {
         symbols.erase(symbols.begin() + startLine + 1, symbols.begin() + endLine);
     }
+
+    if (erasedSymbols.back().getC() == '\n') {
+        symbols.erase(symbols.begin() + endLine);
+    }
+
     counter -= erasedSymbols.size();
 
     return erasedSymbols;
@@ -348,24 +354,17 @@ void SharedEditor::localErase(int startLine, int startIndex, int endLine, int en
         return;
     } else if (startLine != endLine) {
         erasedSymbols = eraseMultipleLines(startLine, startIndex, endLine, endIndex);
-        if (symbols[startLine + 1].empty()) {
-            symbols.erase(symbols.begin() + startLine + 1);
-        }
         mergeLines = true;
     } else {
         erasedSymbols = eraseSingleLine(startLine, startIndex, endLine, endIndex);
         if (erasedSymbols.back().getC() == '\n') {
-            if (symbols[startLine + 1].empty()) {
-                symbols.erase(symbols.begin() + startLine + 1);
-            } else {
-                mergeLines = true;
-            }
+            mergeLines = true;
         }
     }
 
     if (mergeLines && !(symbols[0].empty() && symbols.size() == 1)) {
         symbols[startLine].insert(symbols[startLine].end(), symbols[startLine+1].begin(), symbols[startLine+1].end());
-        symbols.erase(symbols.begin() + startLine+1);
+        symbols.erase(symbols.begin() + startLine + 1);
     }
 
     for (Symbol sym : erasedSymbols) {
