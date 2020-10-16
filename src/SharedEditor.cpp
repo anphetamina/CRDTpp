@@ -186,6 +186,8 @@ std::vector<Identifier> SharedEditor::generatePosBetween(std::vector<Identifier>
                 newPos.emplace_back(id1, siteId2);
                 return this->generatePosBetween(pos1, pos2, newPos, level+1);
             }
+        } else {
+            throw std::runtime_error("Invalid symbols ordering");
         }
     } catch (...) {
         throw;
@@ -330,10 +332,6 @@ std::vector<Symbol> SharedEditor::eraseMultipleLines(int startLine, int startInd
         symbols.erase(symbols.begin() + startLine + 1, symbols.begin() + endLine);
     }
 
-    if (erasedSymbols.back().getC() == '\n') {
-        symbols.erase(symbols.begin() + endLine);
-    }
-
     counter -= erasedSymbols.size();
 
     return erasedSymbols;
@@ -368,6 +366,9 @@ void SharedEditor::localErase(int startLine, int startIndex, int endLine, int en
         return;
     } else if (startLine != endLine) {
         erasedSymbols = eraseMultipleLines(startLine, startIndex, endLine, endIndex);
+        if (erasedSymbols.back().getC() == '\n') {
+            symbols.erase(symbols.begin() + startLine + 1);
+        }
         mergeLines = true;
     } else {
         erasedSymbols = eraseSingleLine(startLine, startIndex, endLine, endIndex);

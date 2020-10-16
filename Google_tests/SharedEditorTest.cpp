@@ -45,6 +45,84 @@ protected:
         ed1->getSymbols().emplace_back();
         ed1->setCounter(32);
         ed1->setIdCounter(32);
+
+        ed3->getSymbols()[0].push_back(*sym0);
+        ed3->getSymbols()[0].push_back(*sym1);
+        ed3->getSymbols()[0].push_back(*sym2);
+        ed3->getSymbols()[0].push_back(*sym3);
+        ed3->getSymbols()[0].push_back(*sym4);
+        ed3->getSymbols()[0].push_back(*sym5);
+        ed3->getSymbols()[0].push_back(*sym6);
+        ed3->getSymbols()[0].push_back(*sym7);
+        ed3->getSymbols()[0].push_back(*sym8);
+        ed3->getSymbols()[0].push_back(*sym9);
+        ed3->getSymbols()[0].push_back(*sym_slash0);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[1].push_back(*sym10);
+        ed3->getSymbols()[1].push_back(*sym11);
+        ed3->getSymbols()[1].push_back(*sym12);
+        ed3->getSymbols()[1].push_back(*sym13);
+        ed3->getSymbols()[1].push_back(*sym14);
+        ed3->getSymbols()[1].push_back(*sym15);
+        ed3->getSymbols()[1].push_back(*sym16);
+        ed3->getSymbols()[1].push_back(*sym17);
+        ed3->getSymbols()[1].push_back(*sym18);
+        ed3->getSymbols()[1].push_back(*sym19);
+        ed3->getSymbols()[1].push_back(*sym_slash1);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[2].push_back(*sym_slash2);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[3].push_back(*sym_slash3);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[4].push_back(*sym20);
+        ed3->getSymbols()[4].push_back(*sym21);
+        ed3->getSymbols()[4].push_back(*sym22);
+        ed3->getSymbols()[4].push_back(*sym23);
+        ed3->getSymbols()[4].push_back(*sym24);
+        ed3->getSymbols()[4].push_back(*sym25);
+        ed3->getSymbols()[4].push_back(*sym26);
+        ed3->getSymbols()[4].push_back(*sym27);
+        ed3->getSymbols()[4].push_back(*sym_slash4);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[5].push_back(*sym28);
+        ed3->getSymbols()[5].push_back(*sym29);
+        ed3->getSymbols()[5].push_back(*sym30);
+        ed3->getSymbols()[5].push_back(*sym31);
+        ed3->getSymbols()[5].push_back(*sym_slash5);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[6].push_back(*sym32);
+        ed3->getSymbols()[6].push_back(*sym_slash6);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[7].push_back(*sym_slash7);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[8].push_back(*sym33);
+        ed3->getSymbols()[8].push_back(*sym34);
+        ed3->getSymbols()[8].push_back(*sym35);
+        ed3->getSymbols()[8].push_back(*sym36);
+        ed3->getSymbols()[8].push_back(*sym37);
+        ed3->getSymbols()[8].push_back(*sym38);
+        ed3->getSymbols()[8].push_back(*sym39);
+        ed3->getSymbols()[8].push_back(*sym40);
+        ed3->getSymbols()[8].push_back(*sym41);
+        ed3->getSymbols()[8].push_back(*sym42);
+        ed3->getSymbols()[8].push_back(*sym_slash8);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[9].push_back(*sym_slash9);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[10].push_back(*sym43);
+        ed3->getSymbols()[10].push_back(*sym_slash10);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[11].push_back(*sym_slash11);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[12].push_back(*sym_slash12);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[13].push_back(*sym44);
+        ed3->getSymbols()[13].push_back(*sym_slash13);
+        ed3->getSymbols().emplace_back();
+        ed3->getSymbols()[14].push_back(*sym_slash14);
+        ed3->getSymbols().emplace_back();
+        ed3->setCounter(60);
+        ed3->setIdCounter(60);
     }
 
     virtual void TearDown() {
@@ -84,6 +162,69 @@ protected:
     Symbol* l1 = new Symbol(char('l'), std::string{"0-29"}, std::vector<Identifier>{Identifier(24, 0), Identifier(6, 0)});
     Symbol* e3 = new Symbol(char('e'), std::string{"0-30"}, std::vector<Identifier>{Identifier(27, 0), Identifier(8, 0)});
     Symbol* slash4 = new Symbol(char('\n'), std::string{"0-31"}, std::vector<Identifier>{Identifier(27, 0), Identifier(8, 0), Identifier(9, 0)});
+
+
+    SharedEditor *ed3 = new SharedEditor(server);
+    Symbol *sym0 = new Symbol('0', "3-0", std::vector<Identifier>{Identifier(1,3)});
+    Symbol *sym1 = new Symbol('1', "3-1", std::vector<Identifier>{Identifier(2,3)});
+    Symbol *sym2 = new Symbol('2', "3-2", std::vector<Identifier>{Identifier(3,3)});
+    Symbol *sym3 = new Symbol('3', "3-3", std::vector<Identifier>{Identifier(4,3)});
+    Symbol *sym4 = new Symbol('4', "3-4", std::vector<Identifier>{Identifier(5,3)});
+    Symbol *sym5 = new Symbol('5', "3-5", std::vector<Identifier>{Identifier(6,3)});
+    Symbol *sym6 = new Symbol('6', "3-6", std::vector<Identifier>{Identifier(7,3)});
+    Symbol *sym7 = new Symbol('7', "3-7", std::vector<Identifier>{Identifier(8,3)});
+    Symbol *sym8 = new Symbol('8', "3-8", std::vector<Identifier>{Identifier(9,3)});
+    Symbol *sym9 = new Symbol('9', "3-9", std::vector<Identifier>{Identifier(10,3), Identifier(2,3)});
+    Symbol *sym_slash0 = new Symbol('\n', "3-10", std::vector<Identifier>{Identifier(11,3)});
+    Symbol *sym10 = new Symbol('0', "3-11", std::vector<Identifier>{Identifier(11,3), Identifier(3,3)});
+    Symbol *sym11 = new Symbol('1', "3-12", std::vector<Identifier>{Identifier(14,3)});
+    Symbol *sym12 = new Symbol('2', "3-13", std::vector<Identifier>{Identifier(17,3)});
+    Symbol *sym13 = new Symbol('3', "3-14", std::vector<Identifier>{Identifier(20,3), Identifier(10,3)});
+    Symbol *sym14 = new Symbol('4', "3-15", std::vector<Identifier>{Identifier(20,3), Identifier(10,3), Identifier(1,3)});
+    Symbol *sym15 = new Symbol('5', "3-16", std::vector<Identifier>{Identifier(20,3), Identifier(11,3)});
+    Symbol *sym16 = new Symbol('6', "3-17", std::vector<Identifier>{Identifier(21,3)});
+    Symbol *sym17 = new Symbol('7', "3-18", std::vector<Identifier>{Identifier(22,3)});
+    Symbol *sym18 = new Symbol('8', "3-19", std::vector<Identifier>{Identifier(22,3), Identifier(1,3), Identifier(10,3)});
+    Symbol *sym19 = new Symbol('9', "3-20", std::vector<Identifier>{Identifier(22,3), Identifier(2,3)});
+    Symbol *sym_slash1 = new Symbol('\n', "3-21", std::vector<Identifier>{Identifier(22,3), Identifier(2,3), Identifier(1,3)});
+    Symbol *sym_slash2 = new Symbol('\n', "3-22", std::vector<Identifier>{Identifier(22,3), Identifier(3,3)});
+    Symbol *sym_slash3 = new Symbol('\n', "3-23", std::vector<Identifier>{Identifier(22,3), Identifier(3,3), Identifier(10,3)});
+    Symbol *sym20 = new Symbol('0', "3-24", std::vector<Identifier>{Identifier(23,3), Identifier(9,3)});
+    Symbol *sym21 = new Symbol('1', "3-25", std::vector<Identifier>{Identifier(23,3), Identifier(10,3)});
+    Symbol *sym22 = new Symbol('2', "3-26", std::vector<Identifier>{Identifier(23,3), Identifier(10,3), Identifier(5,3)});
+    Symbol *sym23 = new Symbol('3', "3-27", std::vector<Identifier>{Identifier(24,3), Identifier(8,3)});
+    Symbol *sym24 = new Symbol('4', "3-28", std::vector<Identifier>{Identifier(24,3), Identifier(8,3), Identifier(8,3), Identifier(24,3)});
+    Symbol *sym25 = new Symbol('5', "3-29", std::vector<Identifier>{Identifier(25,3)});
+    Symbol *sym26 = new Symbol('6', "3-30", std::vector<Identifier>{Identifier(25,3), Identifier(6,3)});
+    Symbol *sym27 = new Symbol('7', "3-31", std::vector<Identifier>{Identifier(25,3), Identifier(6,3), Identifier(1,3), Identifier(23,3), Identifier(1,3)});
+    Symbol *sym_slash4 = new Symbol('\n', "3-32", std::vector<Identifier>{Identifier(25,3), Identifier(7,3)});
+    Symbol *sym28 = new Symbol('0', "3-33", std::vector<Identifier>{Identifier(26,3), Identifier(11,3)});
+    Symbol *sym29 = new Symbol('1', "3-34", std::vector<Identifier>{Identifier(26,3), Identifier(11,3), Identifier(3,3)});
+    Symbol *sym30 = new Symbol('2', "3-35", std::vector<Identifier>{Identifier(26,3), Identifier(11,3), Identifier(4,3)});
+    Symbol *sym31 = new Symbol('3', "3-36", std::vector<Identifier>{Identifier(26,3), Identifier(11,3), Identifier(5,3)});
+    Symbol *sym_slash5 = new Symbol('\n', "3-37", std::vector<Identifier>{Identifier(26,3), Identifier(11,3), Identifier(7,3)});
+    Symbol *sym32 = new Symbol('0', "3-38", std::vector<Identifier>{Identifier(26,3), Identifier(11,3), Identifier(11,3)});
+    Symbol *sym_slash6 = new Symbol('\n', "3-39", std::vector<Identifier>{Identifier(26,3), Identifier(11,3), Identifier(14,3)});
+    Symbol *sym_slash7 = new Symbol('\n', "3-40", std::vector<Identifier>{Identifier(26,3), Identifier(11,3), Identifier(18,3)});
+    Symbol *sym33 = new Symbol('0', "3-41", std::vector<Identifier>{Identifier(26,3), Identifier(13,3)});
+    Symbol *sym34 = new Symbol('1', "3-42", std::vector<Identifier>{Identifier(26,3), Identifier(20,3)});
+    Symbol *sym35 = new Symbol('2', "3-43", std::vector<Identifier>{Identifier(27,3), Identifier(13,3)});
+    Symbol *sym36 = new Symbol('3', "3-44", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(1,3)});
+    Symbol *sym37 = new Symbol('4', "3-45", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(5,3)});
+    Symbol *sym38 = new Symbol('5', "3-46", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(11,3)});
+    Symbol *sym39 = new Symbol('6', "3-47", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(12,3)});
+    Symbol *sym40 = new Symbol('7', "3-48", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(16,3)});
+    Symbol *sym41 = new Symbol('8', "3-49", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(1,3), Identifier(4,3)});
+    Symbol *sym42 = new Symbol('9', "3-50", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(1,3), Identifier(4,3), Identifier(1,3)});
+    Symbol *sym_slash8 = new Symbol('\n', "3-51", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(1,3), Identifier(6,3)});
+    Symbol *sym_slash9 = new Symbol('\n', "3-52", std::vector<Identifier>{Identifier(27,3), Identifier(13,3), Identifier(9,3)});
+    Symbol *sym43 = new Symbol('0', "3-53", std::vector<Identifier>{Identifier(27,3), Identifier(14,3)});
+    Symbol *sym_slash10 = new Symbol('\n', "3-54", std::vector<Identifier>{Identifier(28,3)});
+    Symbol *sym_slash11 = new Symbol('\n', "3-55", std::vector<Identifier>{Identifier(28,3), Identifier(6,3), Identifier(9,3)});
+    Symbol *sym_slash12 = new Symbol('\n', "3-56", std::vector<Identifier>{Identifier(28,3), Identifier(13,3)});
+    Symbol *sym44 = new Symbol('0', "3-57", std::vector<Identifier>{Identifier(29,3), Identifier(17,3), Identifier(1,3), Identifier(4,3), Identifier(1,3)});
+    Symbol *sym_slash13 = new Symbol('\n', "3-58", std::vector<Identifier>{Identifier(28,3), Identifier(18,3), Identifier(1,3), Identifier(2,3)});
+    Symbol *sym_slash14 = new Symbol('\n', "3-59", std::vector<Identifier>{Identifier(29,3)});
 
 };
 
@@ -469,6 +610,7 @@ TEST_F(SharedEditorTest, eraseMultipleLines) {
     EXPECT_EQ(ed1->getSymbols().size(), 4);
     EXPECT_TRUE(ed1->getSymbols()[0].empty());
     EXPECT_TRUE(ed1->getSymbols()[1].empty());
+    EXPECT_TRUE(ed1->getSymbols()[3].empty());
     EXPECT_EQ(*l1, ed1->getSymbols()[2][0]);
     EXPECT_EQ(*e3, ed1->getSymbols()[2][1]);
     EXPECT_EQ(*slash4, ed1->getSymbols()[2][2]);
@@ -476,7 +618,7 @@ TEST_F(SharedEditorTest, eraseMultipleLines) {
 
 TEST_F(SharedEditorTest, eraseMultipleLinesBoundaries) {
     ed1->eraseMultipleLines(2, 3, 3, 8);
-    EXPECT_EQ(ed1->getSymbols().size(), 4);
+    EXPECT_EQ(ed1->getSymbols().size(), 5);
     EXPECT_EQ(*m1, ed1->getSymbols()[2][0]);
     EXPECT_EQ(*a3, ed1->getSymbols()[2][1]);
     EXPECT_EQ(*r1, ed1->getSymbols()[2][2]);
@@ -790,6 +932,228 @@ TEST_F(SharedEditorTest, remoteErase) {
     ed1->setCounter(1);
     ed1->remoteErase(*a1);
     EXPECT_EQ(ed1->getSymbols().size(), 1);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase1) {
+    ed3->eraseMultipleLines(9, 0, 11, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 15);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[11][0], *sym_slash12);
+    EXPECT_EQ(ed3->getSymbols()[12][0], *sym44);
+    EXPECT_EQ(ed3->getSymbols()[12][1], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[13][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase1) {
+    ed3->localErase(9, 0, 11, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[9][0], *sym_slash12);
+    EXPECT_EQ(ed3->getSymbols()[10][0], *sym44);
+    EXPECT_EQ(ed3->getSymbols()[10][1], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[11][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase2) {
+    ed3->eraseMultipleLines(9, 0, 12, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 14);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[11][0], *sym44);
+    EXPECT_EQ(ed3->getSymbols()[11][1], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[12][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase2) {
+    ed3->localErase(9, 0, 12, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 12);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[9][0], *sym44);
+    EXPECT_EQ(ed3->getSymbols()[9][1], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[10][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase3) {
+    ed3->eraseMultipleLines(9, 0, 13, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[10][0], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[11][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase3) {
+    ed3->localErase(9, 0, 13, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 12);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[9][0], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[10][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase4) {
+    ed3->eraseMultipleLines(9, 0, 13, 1);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[11][0], *sym_slash14);
+
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase4) {
+    ed3->localErase(9, 0, 13, 1);
+    EXPECT_EQ(ed3->getSymbols().size(), 11);
+    EXPECT_EQ(ed3->getSymbols()[8].back(), *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[9][0], *sym_slash14);
+
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase5) {
+    ed3->eraseMultipleLines(0, 10, 2, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 15);
+    EXPECT_EQ(ed3->getSymbols()[0][9], *sym9);
+    EXPECT_EQ(ed3->getSymbols()[2][0], *sym_slash3);
+    EXPECT_EQ(ed3->getSymbols()[3][0], *sym20);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase5) {
+    ed3->localErase(0, 10, 2, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[0][9], *sym9);
+    EXPECT_EQ(ed3->getSymbols()[0][10], *sym_slash3);
+    EXPECT_EQ(ed3->getSymbols()[1][0], *sym20);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase6) {
+    ed3->eraseMultipleLines(2, 0, 3, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 16);
+    EXPECT_EQ(ed3->getSymbols()[1].back(), *sym_slash1);
+    EXPECT_EQ(ed3->getSymbols()[4][0], *sym20);
+    EXPECT_EQ(ed3->getSymbols()[4][1], *sym21);
+    EXPECT_EQ(ed3->getSymbols()[4][2], *sym22);
+    EXPECT_EQ(ed3->getSymbols()[4][3], *sym23);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase6) {
+    ed3->localErase(2, 0, 3, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 14);
+    EXPECT_EQ(ed3->getSymbols()[1].back(), *sym_slash1);
+    EXPECT_EQ(ed3->getSymbols()[2][0], *sym20);
+    EXPECT_EQ(ed3->getSymbols()[2][1], *sym21);
+    EXPECT_EQ(ed3->getSymbols()[2][2], *sym22);
+    EXPECT_EQ(ed3->getSymbols()[2][3], *sym23);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase7) {
+    ed3->eraseMultipleLines(1, 0, 3, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 15);
+    EXPECT_EQ(ed3->getSymbols()[0].back(), *sym_slash0);
+    EXPECT_EQ(ed3->getSymbols()[3][0], *sym20);
+    EXPECT_EQ(ed3->getSymbols()[3][1], *sym21);
+    EXPECT_EQ(ed3->getSymbols()[3][2], *sym22);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase7) {
+    ed3->localErase(1, 0, 3, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[0].back(), *sym_slash0);
+    EXPECT_EQ(ed3->getSymbols()[1][0], *sym20);
+    EXPECT_EQ(ed3->getSymbols()[1][1], *sym21);
+    EXPECT_EQ(ed3->getSymbols()[1][2], *sym22);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase8) {
+    ed3->eraseMultipleLines(6, 1, 8, 10);
+    EXPECT_EQ(ed3->getSymbols().size(), 15);
+    EXPECT_EQ(ed3->getSymbols()[5].back(), *sym_slash5);
+    EXPECT_EQ(ed3->getSymbols()[6][0], *sym32);
+    EXPECT_EQ(ed3->getSymbols()[8][0], *sym_slash9);
+    EXPECT_EQ(ed3->getSymbols()[9][0], *sym43);
+    EXPECT_EQ(ed3->getSymbols()[9][1], *sym_slash10);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase8) {
+    ed3->localErase(6, 1, 8, 10);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[5].back(), *sym_slash5);
+    EXPECT_EQ(ed3->getSymbols()[6][0], *sym32);
+    EXPECT_EQ(ed3->getSymbols()[6][1], *sym_slash9);
+    EXPECT_EQ(ed3->getSymbols()[7][0], *sym43);
+    EXPECT_EQ(ed3->getSymbols()[7][1], *sym_slash10);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase9) {
+    ed3->eraseMultipleLines(6, 1, 8, 9);
+    EXPECT_EQ(ed3->getSymbols().size(), 15);
+    EXPECT_EQ(ed3->getSymbols()[6][0], *sym32);
+    EXPECT_EQ(ed3->getSymbols()[7][0], *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[8][0], *sym_slash9);
+    EXPECT_EQ(ed3->getSymbols()[9][0], *sym43);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase9) {
+    ed3->localErase(6, 1, 8, 9);
+    EXPECT_EQ(ed3->getSymbols().size(), 14);
+    EXPECT_EQ(ed3->getSymbols()[6][0], *sym32);
+    EXPECT_EQ(ed3->getSymbols()[6][1], *sym_slash8);
+    EXPECT_EQ(ed3->getSymbols()[7][0], *sym_slash9);
+    EXPECT_EQ(ed3->getSymbols()[8][0], *sym43);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase10) {
+    ed3->eraseMultipleLines(6, 1, 11, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 12);
+    EXPECT_EQ(ed3->getSymbols()[6][0], *sym32);
+    EXPECT_EQ(ed3->getSymbols()[8][0], *sym_slash12);
+    EXPECT_EQ(ed3->getSymbols()[9][0], *sym44);
+    EXPECT_EQ(ed3->getSymbols()[9][1], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[10][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase10) {
+    ed3->localErase(6, 1, 11, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 10);
+    EXPECT_EQ(ed3->getSymbols()[6][0], *sym32);
+    EXPECT_EQ(ed3->getSymbols()[6][1], *sym_slash12);
+    EXPECT_EQ(ed3->getSymbols()[7][0], *sym44);
+    EXPECT_EQ(ed3->getSymbols()[7][1], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[8][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase11) {
+    ed3->eraseMultipleLines(10, 0, 13, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 14);
+    EXPECT_EQ(ed3->getSymbols()[9].back(), *sym_slash9);
+    EXPECT_EQ(ed3->getSymbols()[11][0], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[12][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase11) {
+    ed3->localErase(10, 0, 13, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[9].back(), *sym_slash9);
+    EXPECT_EQ(ed3->getSymbols()[10][0], *sym_slash13);
+    EXPECT_EQ(ed3->getSymbols()[11][0], *sym_slash14);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase12) {
+    ed3->eraseMultipleLines(10, 1, 14, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[10].back(), *sym43);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase12) {
+    ed3->localErase(10, 1, 14, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 11);
+    EXPECT_EQ(ed3->getSymbols()[10].back(), *sym43);
+}
+
+TEST_F(SharedEditorTest, eraseMultipleLinesCase13) {
+    ed3->eraseMultipleLines(10, 0, 14, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 13);
+    EXPECT_EQ(ed3->getSymbols()[9].back(), *sym_slash9);
+}
+
+TEST_F(SharedEditorTest, localEraseMultipleLinesCase13) {
+    ed3->localErase(10, 0, 14, 0);
+    EXPECT_EQ(ed3->getSymbols().size(), 11);
+    EXPECT_EQ(ed3->getSymbols()[9].back(), *sym_slash9);
 }
 
 int main(int argc, char **argv) {
